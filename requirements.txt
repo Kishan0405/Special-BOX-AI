@@ -1,0 +1,13 @@
+Flask
+google-generativeai
+python-dotenv
+markdown2
+Pygments
+requests
+wikipedia
+scholarly
+pytz
+PyPDF2
+python-docx
+python-pptx
+nltk

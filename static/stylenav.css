@@ -1,0 +1,263 @@
+/* CSS Variables for Easy Customization */
+:root {
+    --transition-speed: 0.3s;
+    --side-nav-width-collapsed: 60px;
+    --side-nav-width-expanded: 250px;
+    --side-nav-width-expanded-mobile: 200px;
+    --side-nav-bg: linear-gradient(180deg, #1e1e2f, #3a3a50);
+    --side-nav-padding-top: 20px;
+    --side-nav-z-index: 1000;
+
+    --side-nav-item-color: #ccc;
+    --side-nav-item-hover-bg: rgba(255, 255, 255, 0.1);
+    --side-nav-item-hover-color: #fff;
+    --side-nav-item-active-bg: rgba(255, 255, 255, 0.2);
+    --side-nav-item-active-border: #ff9800;
+
+    --toggle-font-size: 20px;
+    --toggle-bg: var(--side-nav-bg);
+    --toggle-border: 2px solid var(--side-nav-item-active-border);
+    --toggle-size: 30px;
+    --toggle-hover-scale: 1.1;
+
+    --form-label-color: #fff;
+    --select-bg: #2e2e3f;
+    --select-hover-bg: #3e3e5f;
+    --select-border: #555;
+    --select-focus-border: #ff9800;
+    --select-focus-shadow: rgba(255, 152, 0, 0.4);
+    --select-arrow-color: #ccc;
+
+    --dark-mode-select-bg: #3a3a4f;
+    --dark-mode-select-border: #666;
+    --dark-mode-select-hover-bg: #4a4a6f;
+    --dark-mode-select-arrow-color: #ddd;
+}
+
+/* Side Navigation Styles */
+.side-nav {
+    width: 0;
+    /* Initially hidden */
+    overflow-x: hidden;
+    /* Hide horizontal overflow */
+    transition: width 0.5s ease, transform var(--transition-speed) ease, opacity var(--transition-speed) ease;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    right: 0;
+    /* Changed from left to right */
+    background: var(--side-nav-bg);
+    padding: var(--side-nav-padding-top) 0;
+    z-index: var(--side-nav-z-index);
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    /* Adjusted shadow for right side */
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* When expanded, show full width */
+.side-nav.expanded {
+    width: var(--side-nav-width-expanded);
+}
+
+/* When hidden, slide off-screen completely */
+.side-nav.hidden {
+    transform: translateX(100%);
+    /* Changed from -100% to 100% */
+    opacity: 0;
+}
+
+/* Toggle Button for Side Navigation */
+.side-nav-toggle {
+    position: absolute;
+    top: 15px;
+    left: -15px;
+    /* Changed from right to left */
+    background: var(--toggle-bg);
+    border: var(--toggle-border);
+    border-radius: 50%;
+    width: var(--toggle-size);
+    height: var(--toggle-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform var(--transition-speed) ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.side-nav-toggle:hover {
+    transform: scale(var(--toggle-hover-scale));
+}
+
+.side-nav-toggle i {
+    font-size: var(--toggle-font-size);
+    color: #fff;
+}
+
+/* Side Navigation Items */
+.side-nav-items {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.side-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--side-nav-item-color);
+    cursor: pointer;
+    transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
+}
+
+.side-nav-item:hover {
+    background: var(--side-nav-item-hover-bg);
+    color: var(--side-nav-item-hover-color);
+}
+
+.side-nav-item.active {
+    background: var(--side-nav-item-active-bg);
+    border-left: 4px solid var(--side-nav-item-active-border);
+    color: var(--side-nav-item-hover-color);
+}
+
+.side-nav-item i {
+    font-size: 20px;
+    margin-right: 10px;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Text labels hidden in collapsed state */
+.side-nav-item span {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+}
+
+/* Reveal labels when expanded */
+.side-nav.expanded .side-nav-item span {
+    opacity: 1;
+    margin-left: 10px;
+}
+
+/* Main Content Adjustments */
+.main-content {
+    margin-right: 0;
+    /* Changed from left to right */
+    transition: margin-right 0.5s ease;
+    /* Changed from left to right */
+}
+
+.main-content.side-nav-open {
+    margin-right: var(--side-nav-width-expanded);
+    /* Changed from left to right */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .side-nav.expanded {
+        width: var(--side-nav-width-expanded-mobile);
+    }
+
+    .main-content.side-nav-open {
+        margin-right: var(--side-nav-width-expanded-mobile);
+        /* Changed from left to right */
+    }
+}
+
+/* Form Element Styles */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--form-label-color);
+}
+
+.select-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid var(--select-border);
+    border-radius: 4px;
+    background-color: var(--select-bg);
+    font-size: 16px;
+    color: #ccc;
+    transition: all var(--transition-speed) ease;
+}
+
+select:hover {
+    border-color: var(--select-focus-border);
+    background-color: var(--select-hover-bg);
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--select-focus-border);
+    box-shadow: 0 0 5px var(--select-focus-shadow);
+}
+
+.select-wrapper::after {
+    content: '\25BC';
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--select-arrow-color);
+}
+
+/* Responsive Design for Select Wrapper */
+@media (max-width: 768px) {
+    .select-wrapper {
+        width: 100%;
+    }
+}
+
+/* Dark Mode Compatibility for Side Nav */
+.side-nav.dark-mode select {
+    background-color: var(--dark-mode-select-bg);
+    color: #ffffff;
+    border-color: var(--dark-mode-select-border);
+}
+
+.side-nav.dark-mode select:hover {
+    background-color: var(--dark-mode-select-hover-bg);
+    border-color: var(--select-focus-border);
+}
+
+.side-nav.dark-mode .select-wrapper::after {
+    color: var(--dark-mode-select-arrow-color);
+}
+
+/* Additional Styling for Form Container */
+.form-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: 20px auto;
+    transition: all var(--transition-speed) ease;
+}
+
+.form-container:hover {
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+
+/* Style for the icons inside the toggle button */
+#right-icon,
+#left-icon {
+    font-size: 1.2rem;
+    /* Adjust as needed */
+}

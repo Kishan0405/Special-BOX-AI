@@ -1,0 +1,916 @@
+/* ======================================== */
+/*          Universal Reset & Base          */
+/* ======================================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ======================================== */
+/*         Custom Properties (CSS Vars)     */
+/* ======================================== */
+:root {
+    /* -- Color Palette -- */
+    --primary-hue: 210;
+    --primary-saturation: 90%;
+    --primary-lightness: 50%;
+    --primary-color: hsl(var(--primary-hue), var(--primary-saturation), var(--primary-lightness));
+    --primary-dark: hsl(var(--primary-hue), var(--primary-saturation), 40%);
+
+    /* -- Neutral/Gray Scale -- */
+    --neutral-light: #f8f9fa;
+    /* Very light gray/off-white */
+    --neutral-lighter: #e9ecef;
+    /* Lighter gray, for borders, etc. */
+    --neutral-mid-light: #ced4da;
+    /* Medium-light gray */
+    --neutral-mid: #adb5bd;
+    /* Medium gray */
+    --neutral-mid-dark: #6c757d;
+    /* Medium-dark gray */
+    --neutral-darker: #495057;
+    /* Darker gray */
+    --neutral-dark: #343a40;
+    /* Very dark gray */
+
+    /* -- Light Mode Colors -- */
+    --light-text-primary: #2c3e50;
+    --light-text-secondary: var(--neutral-darker);
+    /* Using neutral grayscale */
+    --light-background-primary: #ffffff;
+    --light-background-secondary: var(--neutral-light);
+    /* Using neutral grayscale */
+    --light-border-color: var(--neutral-lighter);
+    /* Using neutral grayscale */
+    --light-code-background: var(--neutral-light);
+    /* Using neutral grayscale */
+
+    /* -- Dark Mode Colors -- */
+    --dark-text-primary: #ecf0f1;
+    --dark-text-secondary: var(--neutral-mid-light);
+    /* Using neutral grayscale */
+    --dark-background-primary: #2c3e50;
+    --dark-background-secondary: #34495e;
+    --dark-border-color: var(--neutral-mid-dark);
+    /* Using neutral grayscale */
+    --dark-code-background: #1e2937;
+
+    /* -- Syntax Highlighting Colors (Light Mode) -- */
+    --syntax-keyword: #0033B3;
+    --syntax-comment: #6A9955;
+    --syntax-string: #067D17;
+    --syntax-number: #1750EB;
+    --syntax-attribute: #871094;
+    --syntax-class: #00627A;
+    --syntax-entity: #C41A16;
+    --syntax-decorator: #7A3E00;
+    --syntax-function: #795E26;
+    --syntax-operator: #5C6370;
+    --syntax-variable: #001080;
+
+    /* -- Dark Mode Syntax Highlighting -- */
+    --dark-syntax-keyword: #569CD6;
+    --dark-syntax-comment: #6A9955;
+    --dark-syntax-string: #CE9178;
+    --dark-syntax-number: #B5CEA8;
+    --dark-syntax-attribute: #9CDCFE;
+    --dark-syntax-class: #4EC9B0;
+    --dark-syntax-entity: #D16969;
+    --dark-syntax-decorator: #DCDCAA;
+    --dark-syntax-function: #DCDCAA;
+    --dark-syntax-operator: #D4D4D4;
+    --dark-syntax-variable: #9CDCFE;
+
+    /* -- Spacing Scale -- */
+    --spacing-xs: 0.3125rem;
+    /* 5px */
+    --spacing-sm: 0.625rem;
+    /* 10px */
+    --spacing-md: 0.9375rem;
+    /* 15px */
+    --spacing-lg: 1.25rem;
+    /* 20px */
+    --spacing-xl: 1.5625rem;
+    /* 25px */
+    --spacing-xxl: 2rem;
+    /* 32px */
+    /* Added larger spacing */
+
+    /* -- Border Radius Scale -- */
+    --border-radius-sm: 0.25rem;
+    /* 4px */
+    --border-radius-md: 0.375rem;
+    /* 6px */
+    --border-radius-lg: 0.5rem;
+    /* 8px */
+    --border-radius-xl: 0.75rem;
+    /* 12px */
+    /* Added larger radius */
+
+    /* -- Shadows -- */
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
+    /* Increased shadow intensity slightly */
+    --shadow-lg: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    /* Increased shadow intensity */
+    --shadow-xl: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    /* Added extra large shadow */
+
+    /* -- Typography -- */
+    --font-size-sm: 0.875rem;
+    /* Slightly increased small font size */
+    --font-size-base: 18px;
+    --font-size-lg: 1.25rem;
+    /* Slightly increased large font size */
+    --font-size-xl: 1.5rem;
+    /* Added extra large font size */
+    --line-height-base: 1.7;
+    /* Slightly increased line height for better readability */
+    --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --font-family-code: 'Fira Code', 'Menlo', 'Monaco', 'Courier New', monospace;
+
+    /* -- Semantic Color Variables -- */
+    --text-color: var(--light-text-primary);
+    --text-secondary: var(--light-text-secondary);
+    --background-color: var(--light-background-primary);
+    --highlight-background: var(--light-background-secondary);
+    --highlight-border: var(--light-border-color);
+    --code-background: var(--light-code-background);
+}
+
+/* ======================================== */
+/*               Base Styles              */
+/* ======================================== */
+body {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    font-family: var(--font-family-base);
+    color: var(--text-color);
+    background-color: var(--background-color);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Improve default link appearance */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+    /* Added text-shadow transition */
+}
+
+a:hover {
+    color: var(--primary-dark);
+    text-shadow: 0 0 0.125rem var(--primary-color);
+    /* Added subtle text shadow on hover */
+}
+
+/* ======================================== */
+/*             Syntax Highlighting          */
+/* ======================================== */
+.highlight {
+    background-color: var(--code-background);
+    border: 1px solid var(--highlight-border);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    overflow-x: auto;
+    box-shadow: var(--shadow-sm);
+    font-family: var(--font-family-code);
+    position: relative;
+}
+
+/* Language label for code blocks */
+.highlight::before {
+    content: attr(data-language);
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--primary-color);
+    color: #fff;
+    font-size: var(--font-size-sm);
+    padding: 0.3rem 0.6rem;
+    /* Slightly increased padding */
+    border-bottom-left-radius: var(--border-radius-sm);
+    border-top-right-radius: var(--border-radius-lg);
+    font-family: var(--font-family-base);
+    opacity: 0.9;
+    z-index: 1;
+    font-weight: 500;
+    /* Slightly bolder language label */
+}
+
+.highlight pre {
+    margin: 0;
+    padding: var(--spacing-sm);
+    background-color: transparent;
+    border-radius: var(--border-radius-md);
+    line-height: 1.5;
+    font-size: var(--font-size-sm);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Line numbers */
+.highlight pre.line-numbers {
+    counter-reset: line;
+    padding-left: 4rem;
+    /* Increased padding for line numbers */
+    position: relative;
+}
+
+.highlight pre.line-numbers .line::before {
+    counter-increment: line;
+    content: counter(line);
+    position: absolute;
+    left: -3.5rem;
+    /* Adjusted position */
+    width: 3rem;
+    /* Adjusted width */
+    color: var(--text-secondary);
+    opacity: 0.6;
+    /* Slightly increased opacity of line numbers */
+    text-align: right;
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+    /* Monospace numbers for alignment */
+}
+
+/* Syntax tokens grouping - Adjusted for better visual balance and contrast */
+.highlight .keyword,
+.highlight .namespace,
+.highlight .keyword-type {
+    color: var(--syntax-keyword);
+    font-weight: 500;
+    /* Slightly lighter bold */
+}
+
+.highlight .comment,
+.highlight .comment-line {
+    color: var(--syntax-comment);
+    font-style: italic;
+    opacity: 0.8;
+    /* Slightly reduced opacity for comments */
+}
+
+.highlight .string,
+.highlight .string-literal {
+    color: var(--syntax-string);
+}
+
+.highlight .number,
+.highlight .numeric-literal,
+.highlight .literal,
+.highlight .literal-value {
+    color: var(--syntax-number);
+}
+
+.highlight .attribute-name,
+.highlight .attribute,
+.highlight .name-other,
+.highlight .name-decorator {
+    color: var(--syntax-attribute);
+    font-weight: 500;
+    /* Slightly lighter bold */
+}
+
+.highlight .class-name,
+.highlight .class,
+.highlight .type,
+.highlight .type-declaration {
+    color: var(--syntax-class);
+    font-weight: 500;
+    /* Slightly lighter bold */
+}
+
+.highlight .entity-name,
+.highlight .entity {
+    color: var(--syntax-entity);
+}
+
+.highlight .decorator-name,
+.highlight .decorator {
+    color: var(--syntax-decorator);
+    font-weight: 500;
+    /* Slightly lighter bold */
+}
+
+.highlight .function-name,
+.highlight .function {
+    color: var(--syntax-function);
+    font-weight: 500;
+    /* Slightly lighter bold */
+}
+
+.highlight .operator {
+    color: var(--syntax-operator);
+}
+
+.highlight .punctuation,
+.highlight .punctuation-literal {
+    color: var(--text-secondary);
+    opacity: 0.8;
+    /* Slightly reduced opacity for punctuation */
+}
+
+.highlight .variable,
+.highlight .variable-name {
+    color: var(--syntax-variable);
+}
+
+/* Highlight current line */
+.highlight .highlight-line {
+    background-color: rgba(52, 152, 219, 0.08);
+    /* Slightly less intense highlight */
+    display: block;
+    margin: 0 calc(-0.5rem);
+    padding: 0 0.5rem;
+    border-left: 3px solid var(--primary-color);
+    /* Slightly thicker border */
+}
+
+/* Match parenthesis/brackets */
+.highlight .match {
+    background-color: rgba(52, 152, 219, 0.15);
+    /* Slightly less intense match highlight */
+    border-radius: var(--border-radius-sm);
+}
+
+/* Code block with title */
+.highlight.with-title {
+    padding-top: 3rem;
+    /* Increased top padding for title */
+}
+
+.highlight .code-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(52, 152, 219, 0.05);
+    /* Lighter title background */
+    padding: 0.6rem var(--spacing-md);
+    /* Slightly increased padding */
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--highlight-border);
+    border-top-left-radius: var(--border-radius-lg);
+    border-top-right-radius: var(--border-radius-lg);
+}
+
+/* ======================================== */
+/*             Dark Mode Adjustments        */
+/* ======================================== */
+body.dark-mode {
+    --text-color: var(--dark-text-primary);
+    --text-secondary: var(--dark-text-secondary);
+    --background-color: var(--dark-background-primary);
+    --highlight-background: var(--dark-background-secondary);
+    --highlight-border: var(--dark-border-color);
+    --code-background: var(--dark-code-background);
+
+    /* Override syntax highlighting colors for dark mode - Adjusted for better dark mode readability */
+    --syntax-keyword: var(--dark-syntax-keyword);
+    --syntax-comment: var(--dark-syntax-comment);
+    --syntax-string: var(--dark-syntax-string);
+    --syntax-number: #A1C381;
+    /* Slightly different number color for dark mode */
+    --syntax-attribute: var(--dark-syntax-attribute);
+    --syntax-class: var(--dark-syntax-class);
+    --syntax-entity: var(--dark-syntax-entity);
+    --syntax-decorator: #D7BA7D;
+    /* Slightly different decorator color for dark mode */
+    --syntax-function: var(--dark-syntax-function);
+    --syntax-operator: #B0B0B0;
+    /* Slightly different operator color for dark mode */
+    --syntax-variable: var(--dark-syntax-variable);
+}
+
+/* ======================================== */
+/*          AI Response Component           */
+/* ======================================== */
+.ai-response {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: var(--spacing-xxl) var(--spacing-lg);
+    border-radius: var(--border-radius-xl);
+    margin: var(--spacing-xl) auto; /* centers the card with consistent vertical spacing */
+    max-width: 100%; /* ensures the card doesn’t span the full width */
+    max-height: 100%; /* ensures the card doesn’t span the full height */
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    border-left: 0.1rem solid var(--primary-color);
+  }
+  
+
+.ai-response:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(0rem);
+}
+
+.ai-response p,
+.ai-response li {
+    margin-bottom: var(--spacing-md);
+    font-size: 1.05rem;
+    /* Slightly increased font size for paragraphs and list items */
+}
+
+/* Inline code */
+.ai-response code {
+    background-color: var(--code-background);
+    border: 1px solid var(--highlight-border);
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-sm);
+    padding: 0.15rem var(--spacing-xs);
+    /* Slightly increased vertical padding */
+    color: var(--primary-color);
+}
+
+/* Code blocks */
+.ai-response pre {
+    background-color: var(--code-background);
+    border: 1px solid var(--highlight-border);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    /* Increased padding for code blocks */
+    position: relative;
+    overflow-x: auto;
+    margin: var(--spacing-md) 0;
+    box-shadow: var(--shadow-sm);
+    /* Added subtle shadow to code blocks in AI response */
+}
+
+.ai-response pre code {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    color: var(--text-color);
+    display: block;
+    font-size: 0.9rem;
+    /* Slightly increased font size in code blocks within AI response */
+}
+
+.ai-response pre::before {
+    content: attr(data-language);
+    position: absolute;
+    top: var(--spacing-xs);
+    right: var(--spacing-sm);
+    color: var(--primary-color);
+    font-size: var(--font-size-sm);
+    opacity: 0.7;
+    font-weight: 500;
+    /* Slightly bolder language label in AI response code blocks */
+}
+
+/* Copy button for code blocks */
+.ai-response pre .copy-button {
+    position: absolute;
+    top: var(--spacing-xs);
+    right: var(--spacing-sm);
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    padding: 0.3rem 0.6rem;
+    /* Slightly increased padding for copy button */
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.ai-response pre:hover .copy-button {
+    opacity: 0.9;
+}
+
+.ai-response pre .copy-button:hover,
+.ai-response pre .copy-button:focus {
+    opacity: 1;
+    outline: none;
+}
+
+/* Headings in AI Response - Improved visual hierarchy */
+.ai-response h1,
+.ai-response h2,
+.ai-response h3 {
+    color: var(--text-color);
+    margin: var(--spacing-xxl) 0 var(--spacing-md);
+    /* Increased top margin for headings */
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--primary-color);
+    /* Slightly thicker heading border */
+    font-weight: 700;
+    /* Bolder headings */
+    letter-spacing: -0.01em;
+    /* Slight letter spacing adjustment for headings */
+}
+
+.ai-response h1 {
+    font-size: var(--font-size-xl);
+}
+
+/* Using extra large font size for h1 */
+.ai-response h2 {
+    font-size: var(--font-size-lg);
+}
+
+.ai-response h3 {
+    font-size: 1.2rem;
+}
+
+.ai-response h4 {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin: var(--spacing-md) 0;
+    font-weight: 600;
+    /* Bolder h4 */
+}
+
+/* Lists */
+.ai-response ul,
+.ai-response ol {
+    padding-left: var(--spacing-xl);
+    /* Increased list indentation */
+    margin-bottom: var(--spacing-md);
+}
+
+.ai-response ul li,
+.ai-response ol li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.6;
+    /* Improved line height for list items */
+}
+
+/* Blockquotes - Adjusted for better visual appeal */
+.ai-response blockquote {
+    border-left: 0.3rem solid var(--primary-color);
+    /* Slightly thicker blockquote border */
+    background-color: var(--highlight-background);
+    /* Using highlight background for blockquotes */
+    padding: var(--spacing-lg);
+    /* Increased padding for blockquotes */
+    margin: var(--spacing-md) 0;
+    color: var(--text-secondary);
+    font-style: italic;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    /* Added subtle shadow to blockquotes */
+}
+
+/* Tables - Improved table styling and responsiveness */
+.ai-response table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-md) 0;
+    overflow-x: auto;
+    /* Keep horizontal scroll */
+    display: block;
+    /* Keep block display */
+    border: 1px solid var(--highlight-border);
+    /* Added border to the entire table */
+    border-radius: var(--border-radius-md);
+    /* Rounded table corners */
+    box-shadow: var(--shadow-sm);
+    /* Added subtle shadow to tables */
+}
+
+.ai-response table th,
+.ai-response table td {
+    padding: var(--spacing-sm);
+    border-top: 1px solid var(--highlight-border);
+    /* Keep cell top border */
+    text-align: left;
+    line-height: 1.5;
+    /* Improved line height in table cells */
+}
+
+.ai-response table th {
+    background-color: var(--primary-color);
+    color: #fff;
+    font-weight: 600;
+    /* No text-align: left here, inherit from parent or browser default */
+}
+
+/* Style for the first row to remove top border (cosmetic improvement) */
+.ai-response table tr:first-child th,
+.ai-response table tr:first-child td {
+    border-top: none;
+}
+
+/* Zebra striping - Adjusted for better contrast */
+.ai-response table tr:nth-child(even) {
+    background-color: var(--highlight-background);
+    /* Using highlight background for zebra stripes */
+}
+
+/* Links in AI Response - Improved link style */
+.ai-response a {
+    color: var(--primary-color);
+    text-decoration: underline;
+    /* Changed to solid underline for better visibility */
+    text-underline-offset: 0.15em;
+    /* Slightly offset underline */
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    /* Transition for underline color */
+}
+
+.ai-response a:hover {
+    color: var(--primary-dark);
+    text-decoration-color: var(--primary-dark);
+    /* Change underline color on hover */
+}
+
+/* Remove dotted border from links - No longer needed with underline */
+.ai-response a {
+    border-bottom: none;
+    /* Removed dotted border */
+}
+
+
+/* ======================================== */
+/*             Action Buttons               */
+/* ======================================== */
+.action-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    justify-content: flex-start;
+    /* Align buttons to the start by default */
+    flex-wrap: wrap;
+    /* Allow buttons to wrap on smaller screens */
+}
+
+.action-buttons button {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    /* Adjusted font size for buttons */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    /* Added box-shadow transition */
+    box-shadow: var(--shadow-sm);
+    /* Added subtle shadow to buttons */
+}
+
+.action-buttons button:hover,
+.action-buttons button:focus {
+    background-color: var(--primary-dark);
+    transform: translateY(0rem);
+    /* Slightly more pronounced hover effect */
+    outline: none;
+    box-shadow: var(--shadow-md);
+    /* Increased shadow on hover */
+}
+
+.action-buttons button i {
+    font-size: var(--font-size-base);
+}
+
+/* Secondary button variant */
+.action-buttons button.secondary {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    box-shadow: none;
+    /* No shadow for secondary buttons by default */
+}
+
+.action-buttons button.secondary:hover,
+.action-buttons button.secondary:focus {
+    background-color: rgba(var(--primary-hue), var(--primary-saturation), 90%, 0.2);
+    /* Lighter background on hover */
+    color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    outline: none;
+    box-shadow: var(--shadow-sm);
+    /* Added shadow on hover for secondary buttons */
+}
+
+/* Action Buttons Alignment Variations - New Feature */
+.action-buttons.align-center {
+    justify-content: center;
+}
+
+.action-buttons.align-right {
+    justify-content: flex-end;
+}
+
+
+/* ======================================== */
+/*              Responsive Design           */
+/* ======================================== */
+@media (max-width: 768px) {
+    :root {
+        --spacing-lg: 0.9375rem;
+        --spacing-xl: 1.25rem;
+        --spacing-xxl: 1.5rem;
+        /* Adjusted larger spacing on smaller screens */
+        --font-size-base: 16px;
+        --font-size-lg: 1.15rem;
+        /* Adjusted large font size on smaller screens */
+        --font-size-xl: 1.3rem;
+        /* Adjusted extra large font size on smaller screens */
+    }
+
+    .ai-response {
+        padding: var(--spacing-lg);
+        /* Adjusted padding on smaller screens */
+        margin-top: var(--spacing-lg);
+        /* Adjusted margin on smaller screens */
+        border-radius: var(--border-radius-lg);
+        /* Adjusted border-radius on smaller screens */
+    }
+
+    .action-buttons button {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-size-sm);
+    }
+
+    .highlight {
+        padding: var(--spacing-sm);
+        /* Adjusted highlight padding on smaller screens */
+    }
+
+    .highlight pre {
+        font-size: 0.875rem;
+        padding: var(--spacing-sm);
+    }
+
+    /* Adjust headings */
+    .ai-response h1 {
+        font-size: var(--font-size-lg);
+    }
+
+    /* Adjusted h1 size on smaller screens */
+    .ai-response h2 {
+        font-size: 1.2rem;
+    }
+
+    .ai-response h3 {
+        font-size: 1.1rem;
+    }
+
+    .ai-response h4 {
+        font-size: 1rem;
+    }
+
+    /* Make tables more mobile-friendly - Further adjustments */
+    .ai-response table {
+        font-size: var(--font-size-sm);
+    }
+
+    .ai-response table th,
+    .ai-response table td {
+        padding: var(--spacing-xs);
+        /* Reduced cell padding on smaller screens */
+        font-size: 0.9rem;
+        /* Slightly smaller font in table cells on small screens */
+    }
+
+    /* Hide copy button on mobile - Keep hiding copy button on mobile */
+    .ai-response pre .copy-button {
+        display: none;
+    }
+
+    /* Adjust list indentation on smaller screens */
+    .ai-response ul,
+    .ai-response ol {
+        padding-left: var(--spacing-lg);
+        /* Adjusted list indentation on smaller screens */
+    }
+
+    /* Adjust blockquote padding on smaller screens */
+    .ai-response blockquote {
+        padding: var(--spacing-sm);
+        /* Adjusted blockquote padding on smaller screens */
+    }
+}
+
+/* ======================================== */
+/*                Print Styles              */
+/* ======================================== */
+@media print {
+    body {
+        font-size: 12pt;
+        /* Set a more appropriate print font size */
+        line-height: 1.3;
+        /* Adjust line height for print */
+    }
+
+    .ai-response {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        padding: 1rem;
+        /* Adjust padding for print */
+        margin-top: 1rem;
+        /* Adjust margin for print */
+    }
+
+    .action-buttons,
+    .ai-response pre .copy-button,
+    .highlight::before
+
+    /* Hide language label in print */
+        {
+        display: none;
+    }
+
+    .highlight {
+        border: 1px solid #ddd;
+        /* Ensure border in print */
+        padding: 0.5rem;
+        /* Adjust highlight padding for print */
+        margin-bottom: 0.5rem;
+        /* Adjust highlight margin for print */
+    }
+
+    .ai-response pre,
+    .ai-response code,
+    .highlight pre,
+    /* Include highlight pre in print styles */
+    .highlight code
+
+    /* Include highlight code in print styles */
+        {
+        background-color: #f5f7f9 !important;
+        color: #000 !important;
+        break-inside: avoid;
+        padding: 0.2rem !important;
+        /* Adjust code padding for print */
+        font-size: 0.9em;
+        /* Adjust code font size for print */
+    }
+
+    .ai-response a {
+        color: #000;
+        border-bottom: none;
+        text-decoration: underline;
+        text-decoration-color: #333;
+        /* Make underline more visible in print */
+    }
+
+    .ai-response h1 {
+        font-size: 1.6em;
+    }
+
+    /* Adjust h1 size for print */
+    .ai-response h2 {
+        font-size: 1.4em;
+    }
+
+    /* Adjust h2 size for print */
+    .ai-response h3 {
+        font-size: 1.2em;
+    }
+
+    /* Adjust h3 size for print */
+    .ai-response h4 {
+        font-size: 1em;
+    }
+
+    /* Adjust h4 size for print */
+
+    .ai-response table {
+        font-size: 0.9em;
+        /* Adjust table font size for print */
+    }
+
+    .ai-response table th,
+    .ai-response table td {
+        padding: 0.2rem;
+        /* Adjust table cell padding for print */
+        border: 1px solid #ddd !important;
+        /* Ensure table borders in print */
+    }
+
+    .ai-response blockquote {
+        padding: 0.5rem 1rem;
+        /* Adjust blockquote padding for print */
+        margin: 0.5rem 0;
+        /* Adjust blockquote margin for print */
+        border-left: 0.2rem solid #333;
+        /* Make blockquote border more visible in print */
+        background-color: #f8f8f8 !important;
+        /* Slightly different background for print blockquote */
+    }
+}

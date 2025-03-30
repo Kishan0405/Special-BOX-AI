@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Special BOX AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styleresponse.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='stylenew.css') }}">
+</head>
+
+<body>
+  <div class="app-container">
+    <div class="welcome-screen" id="welcome-screen">
+      <div class="welcome-card">
+        <h1 class="welcome-title">Welcome to Special BOX AI</h1>
+        <p class="welcome-message">
+          Your intelligent assistant for writing, coding, and problem-solving.
+          Experience the power of AI to enhance your productivity and creativity.
+        </p>
+        <button class="get-started-btn" id="get-started-btn">Get Started</button>
+      </div>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <img src="static/mylogo2.png" alt="Logo" />
+          <span>Special BOX AI</span>
+        </div>
+      </div>
+
+      <button class="new-chat-btn" id="new-chat-btn">
+        <i class="fas fa-plus"></i>
+        <span>New Chat</span>
+      </button>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Preferences</h3>
+
+        <div class="select-group">
+          <label class="select-label" for="response-type">Response Type</label>
+          <div class="select-wrapper">
+            <select id="response-type">
+              <option value="short">Short</option>
+              <option value="medium" selected>Medium</option>
+              <option value="detailed">Detailed</option>
+              <option value="detailed with references">Detailed with References</option>
+              <option value="bullet points">Bullet Points Only</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="select-group">
+          <label class="select-label" for="tone">Tone</label>
+          <div class="select-wrapper">
+            <select id="tone">
+              <option value="professional" selected>Professional</option>
+              <option value="academic">Academic</option>
+              <option value="friendly">Friendly</option>
+              <option value="creative">Creative</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="select-group">
+          <label class="select-label" for="agent">Agent</label>
+          <div class="select-wrapper">
+            <select id="agent">
+              <option value="default_agent" selected>Text Generation</option>
+              <option value="summarize_agent">Summarization</option>
+              <option value="email_agent">Email Assistant</option>
+              <option value="coding_agent">Coding Assistant</option>
+              <option value="mathematics_agent">Math Problem Solver</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="select-group">
+          <label class="select-label" for="language">Language</label>
+          <div class="select-wrapper">
+            <select id="language">
+              <option value="english_in" selected>English (India)</option>
+              <option value="english_us">English (US)</option>
+              <option value="hindi_in">हिंदी (Hindi)</option>
+              <option value="telugu_in">తెలుగు (Telugu)</option>
+              <option value="tamil_in">தமிழ் (Tamil)</option>
+              <option value="kannada_in">ಕನ್ನಡ (Kannada)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="theme-toggle">
+          <button class="theme-btn" id="theme-toggle">
+            <i class="fas fa-sun" id="sun-icon"></i>
+            <i class="fas fa-moon" id="moon-icon" style="display: none;"></i>
+          </button>
+          <button class="theme-btn" id="old-ui-toggle" title="Switch to Old UI">
+            <i class="fas fa-undo"></i>
+          </button>
+        </div>
+      </div>
+
+      <h3 class="sidebar-title">Chat History</h3>
+      <div class="chat-history">
+        <ul class="chat-history-list" id="chat-history-list"></ul>
+      </div>
+    </aside>
+
+    <main class="main-content" id="main-content">
+      <header class="header">
+        <div class="header-controls">
+          <button class="header-btn" id="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="chat-container">
+        <div class="messages-container" id="messages-container">
+          <div class="message ai-message">
+            <div class="message-avatar">
+              <img src="static/mylogo2.png" alt="AI Logo">
+            </div>
+          </div>
+        </div>
+
+        <div class="status-container">
+          <i class="fas fa-spinner spinner" id="spinner" style="display: none;"></i>
+          <div class="status-text" id="status"></div>
+          <div id="upload-status"></div>
+        </div>
+
+        <button id="toggle-status-btn" class="input-btn" title="Show/Hide Status">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+
+        <div class="input-container">
+          <div class="input-wrapper" id="input-wrapper">
+            <div class="input-area">
+              <textarea id="user-input" placeholder="Message Special BOX AI..." rows="1"></textarea>
+            </div>
+            <div class="input-buttons">
+              <button class="input-btn reset-btn" id="reset-btn" title="Reset conversation">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+              <button class="input-btn upload-btn" id="trigger-file-upload" title="Upload Files">
+                <i class="fas fa-plus"></i>
+              </button>
+              <button class="input-btn send-btn" id="send-btn" title="Send message">
+                <i class="fa-regular fa-circle-up"></i>
+              </button>
+              <button class="input-btn stop-btn" id="stop-btn" title="Stop message" style="display:none;">
+                <i class="fas fa-stop"></i>
+              </button>
+            </div>
+          </div>
+          <p class="disclaimer">
+            Special BOX AI can make mistakes.
+            Start with "greetings" for best results.
+          </p>
+        </div>
+      </div>
+
+      <!-- Hidden file input -->
+      <input type="file" id="file-input" name="document" accept=".pdf,.doc,.docx,.ppt,.pptx" style="display:none;" />
+    </main>
+  </div>
+
+  <script>
+    // Toggle status container visibility
+    const toggleStatusBtn = document.getElementById('toggle-status-btn');
+    const statusContainer = document.querySelector('.status-container');
+    if (toggleStatusBtn && statusContainer) {
+      toggleStatusBtn.addEventListener('click', () => {
+        if (statusContainer.style.display === 'none' || statusContainer.style.display === '') {
+          statusContainer.style.display = 'block';
+          toggleStatusBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+        } else {
+          statusContainer.style.display = 'none';
+          toggleStatusBtn.innerHTML = '<i class="fas fa-arrow-down"></i>';
+        }
+      });
+    }
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // STORAGE & CONVERSATION MANAGEMENT
+      const Storage = {
+        getConversations() {
+          return JSON.parse(localStorage.getItem('savedConversations')) || [];
+        },
+        saveConversations(conversations) {
+          localStorage.setItem('savedConversations', JSON.stringify(conversations));
+        },
+        getActiveId() {
+          return localStorage.getItem('activeConversationId');
+        },
+        setActiveId(id) {
+          localStorage.setItem('activeConversationId', id);
+        },
+        getConversationById(id) {
+          return this.getConversations().find(conv => conv.id === id);
+        },
+        updateConversation(updatedConv) {
+          const conversations = this.getConversations();
+          const index = conversations.findIndex(c => c.id === updatedConv.id);
+          if (index !== -1) {
+            conversations[index] = updatedConv;
+          } else {
+            conversations.push(updatedConv);
+          }
+          this.saveConversations(conversations);
+        },
+        deleteConversation(id) {
+          const conversations = this.getConversations().filter(c => c.id !== id);
+          this.saveConversations(conversations);
+          if (this.getActiveId() === id) {
+            this.setActiveId(null);
+          }
+        }
+      };
+
+      const Conversation = {
+        create() {
+          return {
+            id: `conv_${Date.now()}`,
+            title: 'New Chat',
+            messages: [],
+            lastUpdate: Date.now()
+          };
+        },
+        generateTitle(messages) {
+          const firstUserMsg = messages.find(msg => msg.isUser);
+          if (firstUserMsg) {
+            const text = firstUserMsg.message;
+            return text.length > 50 ? `${text.substring(0, 50)}...` : text;
+          }
+          return 'New Chat';
+        },
+        updateTitle(conv) {
+          if (!conv) return;
+          conv.title = this.generateTitle(conv.messages);
+          Storage.updateConversation(conv);
+        }
+      };
+
+      // DOM ELEMENTS
+      const welcomeScreen = document.getElementById('welcome-screen');
+      const getStartedBtn = document.getElementById('get-started-btn');
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('main-content');
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const themeToggle = document.getElementById('theme-toggle');
+      const sunIcon = document.getElementById('sun-icon');
+      const moonIcon = document.getElementById('moon-icon');
+      const newChatBtn = document.getElementById('new-chat-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const sendBtn = document.getElementById('send-btn');
+      const stopBtn = document.getElementById('stop-btn');
+      const userInput = document.getElementById('user-input');
+      const messagesContainer = document.getElementById('messages-container');
+      const spinner = document.getElementById('spinner');
+      const status = document.getElementById('status');
+      const inputWrapper = document.getElementById('input-wrapper');
+      const chatHistoryList = document.getElementById('chat-history-list');
+
+      // Preference dropdown elements
+      const agentSelect = document.getElementById('agent');
+      const responseTypeSelect = document.getElementById('response-type');
+      const toneSelect = document.getElementById('tone');
+      const languageSelect = document.getElementById('language');
+
+      // File Upload Elements
+      const fileInput = document.getElementById('file-input');
+      const triggerFileUpload = document.getElementById('trigger-file-upload');
+      const uploadStatus = document.getElementById('upload-status');
+
+      // Helper: Get All Selected Preferences
+      function getAllPreferences() {
+        const preferences = {
+          agent: agentSelect ? agentSelect.value : 'default_agent',
+          response_type: responseTypeSelect ? responseTypeSelect.value : 'medium',
+          tone: toneSelect ? toneSelect.value : 'professional',
+          language: languageSelect ? languageSelect.value : 'english_in'
+        };
+        const additionalPreferenceSelects = document.querySelectorAll('select[id$="-preference"]');
+        additionalPreferenceSelects.forEach(select => {
+          const prefKey = select.id.replace('-preference', '');
+          if (!preferences.hasOwnProperty(prefKey)) {
+            preferences[prefKey] = select.value;
+          }
+        });
+        return preferences;
+      }
+
+      // AGENT-SPECIFIC OPTIONS
+      const options = {
+        default_agent: {
+          responseTypes: ['short', 'medium', 'detailed', 'detailed with references', 'bullet points'],
+          tones: ['professional', 'academic', 'friendly', 'creative']
+        },
+        summarize_agent: {
+          responseTypes: ['short', 'medium', 'detailed', 'detailed with references', 'bullet points'],
+          tones: ['professional', 'academic', 'friendly', 'creative']
+        },
+        email_agent: {
+          responseTypes: ['short', 'medium', 'detailed'],
+          tones: ['professional', 'academic', 'friendly', 'creative']
+        },
+        coding_agent: {
+          responseTypes: ['medium', 'detailed'],
+          tones: ['professional']
+        },
+        mathematics_agent: {
+          responseTypes: ['short', 'medium', 'detailed', 'bullet points'],
+          tones: ['professional']
+        }
+      };
+
+      // STATE VARIABLES
+      let isDarkMode = false;
+      let isSidebarCollapsed = false;
+      let isProcessing = false;
+      let currentAbortController = null;
+
+      // UI FUNCTIONS
+      const UI = {
+        renderConversationList() {
+          const conversations = Storage.getConversations();
+          const activeId = Storage.getActiveId();
+          chatHistoryList.innerHTML = '';
+          conversations.sort((a, b) => b.lastUpdate - a.lastUpdate);
+          conversations.forEach(conv => {
+            const li = document.createElement('li');
+            li.className = 'chat-history-item';
+            if (conv.id === activeId) li.classList.add('active');
+            li.innerHTML = `<i class="fas fa-comments chat-icon"></i><span>${conv.title}</span>`;
+            li.addEventListener('click', () => {
+              Storage.setActiveId(conv.id);
+              UI.renderActiveConversation();
+              UI.renderConversationList();
+            });
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'X';
+            delBtn.className = 'delete-conversation-btn';
+            delBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (confirm('Are you sure you want to delete this conversation?')) {
+                Storage.deleteConversation(conv.id);
+                UI.renderConversationList();
+                UI.renderActiveConversation();
+              }
+            });
+            li.appendChild(delBtn);
+            chatHistoryList.appendChild(li);
+          });
+        },
+        renderActiveConversation() {
+          messagesContainer.innerHTML = '';
+          const activeId = Storage.getActiveId();
+          if (!activeId) {
+            const newConv = Conversation.create();
+            Storage.updateConversation(newConv);
+            Storage.setActiveId(newConv.id);
+            return UI.renderActiveConversation();
+          }
+          const conversation = Storage.getConversationById(activeId);
+          if (!conversation) {
+            const newConv = Conversation.create();
+            Storage.updateConversation(newConv);
+            Storage.setActiveId(newConv.id);
+            return UI.renderActiveConversation();
+          }
+          if (conversation.messages.length === 0) {
+            UI.addMessageToUI('ai', "Hello! I'm Special BOX AI, How can I help you today?");
+          } else {
+            conversation.messages.forEach(msg => {
+              UI.addMessageToUI(msg.isUser ? 'user' : 'ai', msg.message, false, true);
+            });
+          }
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        },
+        addMessageToUI(sender, text, save = true, skipScroll = false) {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message ${sender}-message`;
+          const avatar = document.createElement('div');
+          avatar.className = 'message-avatar';
+          avatar.innerHTML = sender === 'user'
+            ? '<i class="fas fa-user"></i>'
+            : '<img src="static/mylogo2.png" alt="Robot Logo" class="robot-logo">';
+          const content = document.createElement('div');
+          content.className = 'message-content';
+          content.innerHTML = `<p>${text}</p>`;
+          messageDiv.append(avatar, content);
+          messagesContainer.appendChild(messageDiv);
+          if (!skipScroll) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          }
+          if (save) Chat.saveMessage(sender, text);
+        },
+        showTypingIndicator() {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = 'message ai-message typing';
+          const avatar = document.createElement('div');
+          avatar.className = 'message-avatar';
+          avatar.innerHTML = '<img src="static/mylogo2.png" alt="Robot Logo" class="robot-logo">';
+          const content = document.createElement('div');
+          content.className = 'message-content';
+          content.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+          messageDiv.append(avatar, content);
+          messagesContainer.appendChild(messageDiv);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          return messageDiv;
+        },
+        hideTypingIndicator(typingElement) {
+          if (typingElement && typingElement.parentNode) {
+            typingElement.parentNode.removeChild(typingElement);
+          }
+        }
+      };
+
+      // CHAT FUNCTIONS
+      const Chat = {
+        saveMessage(sender, text) {
+          const activeId = Storage.getActiveId();
+          if (!activeId) return;
+          const conversation = Storage.getConversationById(activeId);
+          if (!conversation) return;
+          conversation.messages.push({
+            isUser: sender === 'user',
+            message: text,
+            timestamp: new Date().toISOString()
+          });
+          conversation.lastUpdate = Date.now();
+          Conversation.updateTitle(conversation);
+          Storage.updateConversation(conversation);
+          UI.renderConversationList();
+        },
+        sendMessage() {
+          if (isProcessing || !userInput.value.trim()) return;
+          const userMessage = userInput.value.trim();
+          UI.addMessageToUI('user', userMessage);
+          userInput.value = '';
+          userInput.style.height = 'auto';
+          resetBtn.style.display = 'none';
+          sendBtn.style.display = 'none';
+          userInput.disabled = true;
+          isProcessing = true;
+          spinner.style.display = 'inline-block';
+          status.textContent = 'Processing your request...';
+          inputWrapper.classList.add('ai-thinking');
+          stopBtn.style.display = 'inline-block';
+          currentAbortController = new AbortController();
+          const typingIndicator = UI.showTypingIndicator();
+          const selectedPreferences = getAllPreferences();
+          fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: currentAbortController.signal,
+            body: JSON.stringify({
+              message: userMessage,
+              ...selectedPreferences
+            })
+          })
+            .then(response => {
+              if (!response.ok) throw new Error(`HTTP Error! Status: ${response.status}`);
+              if (!response.body) throw new Error('ReadableStream not supported.');
+              return response.body.getReader();
+            })
+            .then(reader => {
+              const decoder = new TextDecoder();
+              let finalResponse = '';
+              function readStream() {
+                reader.read().then(({ done, value }) => {
+                  if (done) {
+                    UI.hideTypingIndicator(typingIndicator);
+                    UI.addMessageToUI('ai', finalResponse);
+                    isProcessing = false;
+                    spinner.style.display = 'none';
+                    status.textContent = '';
+                    inputWrapper.classList.remove('ai-thinking');
+                    stopBtn.style.display = 'none';
+                    resetBtn.style.display = 'inline-block';
+                    sendBtn.style.display = 'inline-block';
+                    userInput.disabled = false;
+                    currentAbortController = null;
+                    return;
+                  }
+                  const chunkText = decoder.decode(value, { stream: true });
+                  chunkText.split('\n').forEach(line => {
+                    if (!line.trim()) return;
+                    try {
+                      const json = JSON.parse(line);
+                      if (json.status_update) {
+                        status.textContent = json.status_update;
+                      }
+                      if (json.partial_response) {
+                        finalResponse += json.partial_response;
+                      }
+                    } catch {
+                      finalResponse += line;
+                    }
+                  });
+                  readStream();
+                }).catch(error => {
+                  if (error.name === 'AbortError') {
+                    status.textContent = 'Request aborted.';
+                    UI.addMessageToUI('ai', 'Message stopped by user.');
+                  } else {
+                    UI.addMessageToUI('ai', 'Error receiving response.');
+                  }
+                  UI.hideTypingIndicator(typingIndicator);
+                  isProcessing = false;
+                  spinner.style.display = 'none';
+                  status.textContent = '';
+                  inputWrapper.classList.remove('ai-thinking');
+                  stopBtn.style.display = 'none';
+                  resetBtn.style.display = 'inline-block';
+                  sendBtn.style.display = 'inline-block';
+                  userInput.disabled = false;
+                  currentAbortController = null;
+                });
+              }
+              readStream();
+            })
+            .catch(error => {
+              if (error.name === 'AbortError') {
+                status.textContent = 'Request aborted.';
+                UI.addMessageToUI('ai', 'Message stopped by user.');
+              } else {
+                UI.addMessageToUI('ai', 'An error occurred. Please try again.');
+              }
+              isProcessing = false;
+              spinner.style.display = 'none';
+              status.textContent = '';
+              inputWrapper.classList.remove('ai-thinking');
+              stopBtn.style.display = 'none';
+              resetBtn.style.display = 'inline-block';
+              sendBtn.style.display = 'inline-block';
+              userInput.disabled = false;
+              currentAbortController = null;
+            });
+        },
+        resetConversation() {
+          const activeId = Storage.getActiveId();
+          if (activeId) {
+            const conv = Storage.getConversationById(activeId);
+            if (conv) {
+              conv.messages = [];
+              conv.lastUpdate = Date.now();
+              conv.title = 'New Chat';
+              Storage.updateConversation(conv);
+            }
+          }
+          messagesContainer.innerHTML = '';
+          UI.addMessageToUI('ai', "Conversation was reset", false);
+          UI.addMessageToUI('ai', "Hello! I'm Special BOX AI, your personal assistant. How can I help you today?", false);
+          UI.renderConversationList();
+        },
+        newChat() {
+          const newConv = Conversation.create();
+          Storage.updateConversation(newConv);
+          Storage.setActiveId(newConv.id);
+          messagesContainer.innerHTML = '';
+          UI.addMessageToUI('ai', "Hello! I'm Special BOX AI, your personal assistant. How can I help you today?", false);
+          UI.renderConversationList();
+        }
+      };
+
+      // Copy to clipboard functions
+      function fallbackCopyToClipboard(text) {
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = text;
+        tempTextArea.style.position = 'fixed';
+        tempTextArea.style.top = 0;
+        tempTextArea.style.left = 0;
+        tempTextArea.style.width = '1px';
+        tempTextArea.style.height = '1px';
+        tempTextArea.style.padding = 0;
+        tempTextArea.style.border = 'none';
+        tempTextArea.style.outline = 'none';
+        tempTextArea.style.boxShadow = 'none';
+        tempTextArea.style.background = 'transparent';
+        document.body.appendChild(tempTextArea);
+        try {
+          tempTextArea.select();
+          tempTextArea.setSelectionRange(0, text.length);
+          const successful = document.execCommand('copy');
+          if (successful) {
+            showToast("Response copied to clipboard (Plain Text)!");
+          } else {
+            showToast("Copying failed, please try again.", 'error');
+          }
+        } catch (err) {
+          showToast("Copying failed, please try again.", 'error');
+        } finally {
+          document.body.removeChild(tempTextArea);
+        }
+      }
+
+      function handleCopyError(err, text) {
+        fallbackCopyToClipboard(text);
+      }
+
+      function copyToClipboard(event) {
+        event.preventDefault();
+        const aiMessageElement = event.target.closest('.message.ai-message');
+        if (!aiMessageElement) {
+          showToast("No response to copy!", 'error');
+          return;
+        }
+        const responseContentText = aiMessageElement.innerText.trim();
+        const responseContentHTML = aiMessageElement.innerHTML.trim();
+        if (!responseContentText) {
+          showToast("No response to copy!", 'error');
+          return;
+        }
+        if (navigator.clipboard && navigator.clipboard.write) {
+          try {
+            const htmlBlob = new Blob([responseContentHTML], { type: 'text/html' });
+            const textBlob = new Blob([responseContentText], { type: 'text/plain' });
+            const clipboardItem = new ClipboardItem({
+              'text/html': htmlBlob,
+              'text/plain': textBlob
+            });
+            navigator.clipboard.write([clipboardItem])
+              .then(() => showToast("Response copied to clipboard!"))
+              .catch(err => handleCopyError(err, responseContentText));
+          } catch (err) {
+            fallbackCopyToClipboard(responseContentText);
+          }
+        } else {
+          fallbackCopyToClipboard(responseContentText);
+        }
+      }
+
+      document.addEventListener('click', function (event) {
+        const copyTrigger = event.target.closest('button.copy-btn, .message.ai-message button');
+        if (copyTrigger) {
+          copyToClipboard(event);
+        }
+      });
+
+      function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.classList.add('fade-out');
+          setTimeout(() => {
+            document.body.removeChild(toast);
+          }, 500);
+        }, 3000);
+      }
+
+      userInput.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = `${this.scrollHeight}px`;
+      });
+
+      function capitalizeFirstLetter(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+      }
+
+      if (getStartedBtn && welcomeScreen) {
+        getStartedBtn.addEventListener('click', () => {
+          welcomeScreen.classList.add('hidden');
+          setTimeout(() => {
+            welcomeScreen.style.display = 'none';
+          }, 500);
+        });
+      }
+
+      function updateAgentOptions() {
+        const selectedAgent = agentSelect.value;
+        const currentResponseType = responseTypeSelect.value;
+        const currentTone = toneSelect.value;
+        const validResponseTypes = options[selectedAgent].responseTypes;
+        responseTypeSelect.innerHTML = validResponseTypes.map(type =>
+          `<option value="${type}" ${type === currentResponseType ? 'selected' : ''}>${capitalizeFirstLetter(type)}</option>`
+        ).join('');
+        const validTones = options[selectedAgent].tones;
+        toneSelect.innerHTML = validTones.map(tone =>
+          `<option value="${tone}" ${tone === currentTone ? 'selected' : ''}>${capitalizeFirstLetter(tone)}</option>`
+        ).join('');
+      }
+
+      if (agentSelect) {
+        agentSelect.addEventListener('change', updateAgentOptions);
+      }
+
+      function toggleSidebar() {
+        isSidebarCollapsed = !isSidebarCollapsed;
+        sidebar.classList.toggle('collapsed', isSidebarCollapsed);
+        sidebar.classList.toggle('open');
+        if (window.innerWidth > 768) {
+          mainContent.style.width = isSidebarCollapsed ? '100%' : `calc(100% - var(--sidebar-width))`;
+        }
+      }
+
+      if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', toggleSidebar);
+      }
+
+      function toggleDarkMode() {
+        document.body.classList.toggle('dark-theme');
+        isDarkMode = !isDarkMode;
+        if (isDarkMode) {
+          sunIcon.style.display = 'none';
+          moonIcon.style.display = 'inline-block';
+          localStorage.setItem('theme', 'dark');
+        } else {
+          sunIcon.style.display = 'inline-block';
+          moonIcon.style.display = 'none';
+          localStorage.setItem('theme', 'light');
+        }
+      }
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', toggleDarkMode);
+      }
+
+      if (localStorage.getItem('theme') === 'dark') {
+        toggleDarkMode();
+      }
+
+      const oldUIToggle = document.getElementById('old-ui-toggle');
+      if (oldUIToggle) {
+        oldUIToggle.addEventListener('click', () => {
+          window.location.href = '/main.html';
+        });
+      }
+
+      if (newChatBtn) {
+        newChatBtn.addEventListener('click', Chat.newChat);
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', Chat.resetConversation);
+      }
+
+      if (sendBtn) {
+        sendBtn.addEventListener('click', Chat.sendMessage);
+      }
+
+      userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          Chat.sendMessage();
+        }
+      });
+
+      if (stopBtn) {
+        stopBtn.addEventListener('click', () => {
+          if (currentAbortController) {
+            currentAbortController.abort();
+          }
+        });
+      }
+
+      if (agentSelect) {
+        updateAgentOptions();
+      }
+
+      (function initializeChat() {
+        if (!Storage.getActiveId()) {
+          const newConv = Conversation.create();
+          Storage.updateConversation(newConv);
+          Storage.setActiveId(newConv.id);
+        }
+        UI.renderConversationList();
+        UI.renderActiveConversation();
+      })();
+
+      // File upload handling
+      const handleFileUpload = () => {
+        const file = fileInput.files[0];
+        if (!file) {
+          uploadStatus.textContent = "Please select a file to upload.";
+          uploadStatus.className = "upload-error";
+          return;
+        }
+        uploadStatus.textContent = "Uploading...";
+        uploadStatus.className = "uploading";
+        const formData = new FormData();
+        formData.append('document', file);
+        fetch('/upload', {
+          method: 'POST',
+          body: formData
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              uploadStatus.className = 'upload-success';
+              uploadStatus.textContent = data.message || "Document uploaded successfully.";
+            } else {
+              uploadStatus.className = 'upload-error';
+              uploadStatus.textContent = data.error || "Error uploading document.";
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            uploadStatus.className = 'upload-error';
+            uploadStatus.textContent = "An error occurred during upload.";
+          });
+      };
+
+      // Trigger file input click when the plus button is clicked
+      if (triggerFileUpload) {
+        triggerFileUpload.addEventListener('click', () => {
+          fileInput.click();
+        });
+      }
+
+      // Automatically handle file upload on file selection
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+          handleFileUpload();
+        } else {
+          uploadStatus.textContent = "No file selected.";
+          uploadStatus.className = "upload-error";
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
