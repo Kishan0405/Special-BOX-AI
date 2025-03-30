@@ -726,6 +726,12 @@ def reset_conversation() -> Any:
     conversation_context['history'] = []
     return jsonify({'status': 'success', 'message': 'Conversation has been reset successfully.'})
 
+@app.route('/delete_upload', methods=['POST'])
+def delete_upload():
+    """Endpoint to delete the uploaded document and its extracted text."""
+    session.pop('uploaded_doc_text', None)  # Remove extracted text from session
+    return jsonify({"success": True, "message": "Uploaded document and extracted text deleted."})
+
 @app.route('/new.html')
 def new_chat() -> Any:
     return render_template('new.html')
@@ -743,4 +749,4 @@ def main():
     return render_template('main.html')
 
 if __name__ == '__main__':
-    app.run(debug=False,host='0.0.0.0')
+    app.run(debug=True)

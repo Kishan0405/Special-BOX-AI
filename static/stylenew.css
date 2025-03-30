@@ -14,7 +14,6 @@
     --sidebar-mobile-width: 85vw;
     --transition-speed: 0.3s;
     --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
-
     /* Grey Scale & Backgrounds */
     --grey-light: #f8f9fa;
     --grey-mid-light: #e9ecef;
@@ -115,7 +114,6 @@ body {
         opacity: 0;
         transform: translateY(20px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -314,84 +312,86 @@ select:focus {
 .chat-history {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
-    margin-top: auto;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    flex-grow: 1; /* Take up available vertical space */
+    margin-top: auto; /* Push to bottom if space available */
+    overflow-y: auto; /* Enable vertical scrolling */
+    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
 }
 
 .chat-history-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+    list-style: none; /* Remove bullet points */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Corrected: Remove the large margin. Use 0 or a small value like 0.5rem if you need a tiny margin. */
+    max-height: 100%; /* Ensure list doesn't exceed container height */
 }
 
 .chat-history-item {
-    padding: 0.8rem;
-    margin-bottom: 0.5rem;
-    border-radius: var(--radius);
-    cursor: pointer;
+    padding: 1rem; /* Spacing inside the item */
+    margin-bottom: 0.5rem; /* Spacing between items */
+    min-height: 60px; /* Minimum height for each item */
+    border-radius: var(--radius); /* Rounded corners */
+    cursor: pointer; /* Indicate it's clickable */
     display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    position: relative;
-    transition: background-color 0.2s ease;
+    align-items: center; /* Vertically center content */
+    gap: 0.7rem; /* Spacing between icon and text */
+    position: relative; /* Needed for positioning delete button */
+    transition: background-color 0.2s ease; /* Smooth hover effect */
 }
 
 .chat-history-item:hover {
-    background-color: var(--hover-color);
+    background-color: var(--hover-color); /* Hover background color */
 }
 
 .chat-history-item.active {
-    background-color: rgba(0, 120, 212, 0.1);
-    font-weight: 500;
+    background-color: rgba(0, 120, 212, 0.1); /* Active item background color */
+    font-weight: 500; /* Make text bolder when active */
 }
 
 .chat-icon {
-    color: var(--primary-color);
-    font-size: 0.9rem;
-    flex-shrink: 0;
+    color: var(--primary-color); /* Icon color */
+    font-size: 0.9rem; /* Icon size */
+    flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 .delete-conversation-btn {
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--text-color);
-    cursor: pointer;
-    font-size: 1rem;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    padding: 0.25rem;
+    position: absolute; /* Absolute positioning within the item */
+    right: 0.5rem; /* Distance from the right edge */
+    top: 50%; /* Vertically center */
+    transform: translateY(-50%); /* Adjust for true vertical center */
+    background: none; /* Transparent background */
+    border: none; /* Remove border */
+    color: var(--text-color); /* Icon color */
+    cursor: pointer; /* Indicate it's clickable */
+    font-size: 1rem; /* Icon size */
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.15s ease; /* Smooth fade-in effect */
+    padding: 0.25rem; /* Add some padding around the button */
 }
 
 .chat-history-item:hover .delete-conversation-btn {
-    opacity: 0.7;
+    opacity: 0.7; /* Show button on hover */
 }
 
 .delete-conversation-btn:hover {
-    opacity: 1 !important;
+    opacity: 1 !important; /* Ensure full opacity on hover */
 }
 
 /* Custom Scrollbar */
 .chat-history::-webkit-scrollbar {
-    width: 6px;
+    width: 6px; /* Scrollbar width */
 }
 
 .chat-history::-webkit-scrollbar-track {
-    background: transparent;
+    background: transparent; /* Transparent track */
 }
 
 .chat-history::-webkit-scrollbar-thumb {
-    background-color: rgba(var(--primary-rgb, 0, 120, 212), 0.3);
-    border-radius: 3px;
+    background-color: rgba(var(--primary-rgb, 0, 120, 212), 0.3); /* Scrollbar thumb color */
+    border-radius: 3px; /* Rounded corners for the thumb */
 }
 
 .chat-history::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(var(--primary-rgb, 0, 120, 212), 0.5);
+    background-color: rgba(var(--primary-rgb, 0, 120, 212), 0.5); /* Darker thumb color on hover */
 }
 
 .main-content.sidebar-collapsed {
@@ -451,16 +451,15 @@ select:focus {
     background: none;
     border: none;
     color: var(--text-color);
-    font-size: 1.1rem;
+    font-size: 1rem;
     cursor: pointer;
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    bottom: 0;
-    display: flex;
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s;
+    margin-bottom: 0;
 }
 
 .theme-btn:hover {
@@ -470,8 +469,8 @@ select:focus {
 .theme-toggle {
     display: flex;
     align-items: center;
-    gap: 10px; /* Adjust as needed */
-  }
+    gap: 10px;
+}
 
 /* Chat Container */
 .chat-container {
@@ -502,7 +501,7 @@ select:focus {
 
 .message-avatar {
     width: 36px;
-    height: 36px;
+    height : 36px;
     border-radius: 50%;
     background-color: var(--grey-mid);
     display: flex;
@@ -536,6 +535,7 @@ select:focus {
 
 .ai-message .message-content {
     border-left: none;
+    max-width: 80%;
 }
 
 .user-message {
@@ -592,17 +592,15 @@ select:focus {
 
 /* ==============================
 BASE / GLOBAL STYLES
-============================== */
+=============================== */
 
 /* Status Indicators */
 .status-container {
-    display: none;
-    /* Initially hidden */
+    display: none; /* Initially hidden */
     justify-content: center;
     align-items: center;
     margin: 1rem 0;
-    height: 0rem;
-    /* If hidden, set to 0 */
+    height: 0rem; /* If hidden, set to 0 */
 }
 
 .spinner {
@@ -615,7 +613,6 @@ BASE / GLOBAL STYLES
     from {
         transform: rotate(0deg);
     }
-
     to {
         transform: rotate(360deg);
     }
@@ -647,11 +644,9 @@ BASE / GLOBAL STYLES
     0% {
         opacity: 0.8;
     }
-
     50% {
         opacity: 1;
     }
-
     100% {
         opacity: 0.8;
     }
@@ -690,7 +685,6 @@ BASE / GLOBAL STYLES
     font-size: 1.2rem;
 }
 
-
 /* Sidebar logo image style */
 .sidebar .logo img {
     width: auto;
@@ -700,7 +694,6 @@ BASE / GLOBAL STYLES
     margin-right: 0.5rem;
     border-radius: 0;
 }
-
 
 /* Input Area */
 .input-container {
@@ -798,11 +791,9 @@ BASE / GLOBAL STYLES
     0% {
         width: 0%;
     }
-
     50% {
         width: 100%;
     }
-
     100% {
         width: 0%;
     }
@@ -819,7 +810,7 @@ BASE / GLOBAL STYLES
 
 /* ==============================
 MEDIA QUERIES
-============================== */
+=============================== */
 
 /* ----- Mobile (max-width: 768px) ----- */
 @media (max-width: 768px) {
@@ -882,7 +873,7 @@ MEDIA QUERIES
     .header {
         padding: 0.6rem 0.8rem;
         flex-shrink: 0;
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border -color);
         background-color: var(--card-bg);
     }
 
@@ -911,15 +902,12 @@ MEDIA QUERIES
         padding: 0.6rem 0.8rem;
     }
 
-    /* Message Content */
-    .message-content {
-        padding: 0.6rem 0.8rem;
-        font-size: 0.9rem;
-        border-radius: var(--radius);
-        background-color: var(--ai-bg);
-        color: var(--text-color);
+    .ai-message .message-content {
+        border-left: none;
+        max-width: 100%;
     }
 
+    /* Message Content */
     .user-message {
         max-width: 90%;
     }
@@ -940,39 +928,84 @@ MEDIA QUERIES
         z-index: 10;
         background-color: var(--bg-color);
         border-top: 1px solid var(--border-color);
-        padding: 0.6rem 0.8rem;
-        padding-bottom: calc(0.6rem + var(--safe-area-inset-bottom));
+        padding: 0.8rem 1rem;
+        padding-bottom: calc(0.8rem + var(--safe-area-inset-bottom));
+        left: 0;
+        right: 0;
     }
 
     .input-wrapper {
-        padding: 0.3rem 0.6rem;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 0.6rem 0.8rem;
         border-radius: var(--radius);
         background-color: var(--card-bg);
         box-shadow: var(--shadow);
+        box-sizing: border-box;
     }
 
     #user-input {
-        font-size: 0.9rem;
+        font-size: 1rem;
         width: 100%;
         border: none;
         background: transparent;
         color: var(--text-color);
+        padding: 0;
+        margin-right: 0.5rem;
     }
 
     .input-buttons {
-        gap: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
     }
 
     .input-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 1rem;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
         transition: background-color 0.2s;
+        border-radius: 50%;
+        background-color: transparent;
+        color: var(--text-color);
+        border: none;
+        outline: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .input-btn:hover {
-        background-color: rgba(0, 0, 0, 0.1);
-        border-radius: 50%;
+        background-color: var(--hover-color);
+    }
+
+    .send-btn {
+        color: var(--primary-color);
+    }
+
+    .send-btn:hover {
+        color: var(--secondary-color);
+    }
+
+    /* Style placeholder text */
+    #user-input::placeholder {
+        color: var(--grey-mid);
+        opacity: 1; /* Firefox */
+    }
+
+    #user-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: var(--grey-mid);
+    }
+
+    #user-input::-ms-input-placeholder { /* Microsoft Edge */
+        color: var(--grey-mid);
+    }
+
+    /* Remove border on focus for cleaner look */
+    #user-input:focus {
+        outline: none;
     }
 
     /* Disclaimer */
@@ -1027,28 +1060,36 @@ MEDIA QUERIES
         padding: 0.8rem 1rem;
     }
 
+    .input-container {
+        padding:  0.6rem 0.8rem;
+        padding-bottom: calc(0.6rem + var(--safe-area-inset-bottom));
+    }
+
     .input-wrapper {
-        padding: 0.4rem 0.8rem;
+        padding: 0.4rem 0.6rem;
     }
 
     #user-input {
-        padding: 0.6rem;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }
 
     .input-buttons {
-        gap: 0.4rem;
+        gap: 0.3rem;
     }
 
     .input-btn {
         width: 36px;
         height: 36px;
+        font-size: 1.1rem;
+    }
+
+    .disclaimer {
+        font-size: 0.5rem;
     }
 }
 
 /* ----- Support for Notch Devices ----- */
 @supports (padding: max(0px)) {
-
     .sidebar,
     .chat-container,
     .input-container {
@@ -1102,13 +1143,11 @@ MEDIA QUERIES
 }
 
 @keyframes blink {
-
     0%,
     80%,
     100% {
         opacity: 0.4;
     }
-
     40% {
         opacity: 1;
     }
