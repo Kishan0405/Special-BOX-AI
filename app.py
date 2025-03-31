@@ -20,6 +20,8 @@ from functools import lru_cache
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Dict, Optional, Any
 import io
+from bs4 import BeautifulSoup
+import requests
 
 # Imports for document extraction
 import PyPDF2
@@ -139,6 +141,28 @@ def get_news_data(topic: str) -> str:
         logger.error(f"Exception in get_news_data: {e}")
         return f"Exception occurred: {str(e)}"
 
+def extract_website_content(url: str) -> str:
+    """Extract main text content from a website URL using BeautifulSoup."""
+    try:
+        headers = {
+            'User -Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        # Extract text from specific tags
+        paragraphs = soup.find_all('p')
+        content = ' '.join([para.get_text() for para in paragraphs])
+        
+        return content[:5000]  # Limit to 5000 characters
+    except requests.exceptions.RequestException as req_err:
+        logger.error(f"Website extraction error: {req_err}")
+        return f"Error accessing website: {req_err}"
+    except Exception as e:
+        logger.error(f"Exception in extract_website_content: {e}")
+        return f"Exception occurred: {str(e)}"
+
 def integrate_tool_data(user_message: str) -> str:
     additional_info = []
     tasks = [
@@ -155,20 +179,42 @@ def integrate_tool_data(user_message: str) -> str:
             "function": get_news_data,
             "default": "latest",
             "label": "News update"
+        },
+        {
+            "keyword": "website",
+            "pattern": r"(?:website|page|link|url)\s+(https?://\S+)",
+            "function": extract_website_content,
+            "default": None,
+            "label": "Content from"
+        },
+        {
+            "keyword": "http",
+            "pattern": r"(https?://\S+)",
+            "function": extract_website_content,
+            "default": None,
+            "label": "Content from",
+            "require_keyword": False
         }
     ]
+    
     recognized_task = False
     for task in tasks:
-        if task["keyword"] in user_message.lower():
-            recognized_task = True
+        keyword_present = task["keyword"] in user_message.lower() if task.get("require_keyword", True) else True
+        if keyword_present:
             match = re.search(task["pattern"], user_message, re.IGNORECASE)
             if not match and task["keyword"] == "weather":
                 match = re.search(r'(\w+)\s+weather', user_message, re.IGNORECASE)
-            param = match.group(1).strip() if match and match.group(1) else task["default"]
-            result = task["function"](param)
-            additional_info.append(f"{task['label']} {param}: {result}")
+            
+            if match or task["default"] is not None:
+                recognized_task = True
+                param = match.group(1).strip() if match and match.group(1) else task["default"]
+                if param:  # Only proceed if we have a parameter (URL or location)
+                    result = task["function"](param)
+                    additional_info.append(f"{task['label']} {param}: {result}")
+
     if not recognized_task:
         additional_info.append("No specific tasks recognized from the user input.")
+    
     additional_info.append(f"Current date and time: {get_current_india_datetime()}")
     return "\n".join(additional_info)
 
@@ -699,6 +745,25 @@ def news_endpoint():
         'news': news_info,
         'message': f"Real-time news data on {topic}"
     })
+    
+@app.route('/extract_website', methods=['GET'])
+def extract_website_endpoint():
+    url = request.args.get('url')
+    if not url:
+        return jsonify({"error": "URL parameter is required"}), 400
+    
+    try:
+        content = extract_website_content(url)
+        return jsonify({
+            'url': url,
+            'content': content,
+            'message': f"Extracted content from {url}"
+        })
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'message': f"Failed to extract content from {url}"
+        }), 500
 
 @app.route('/format_code_text', methods=['POST'])
 def format_code_text() -> Any:
