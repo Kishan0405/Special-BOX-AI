@@ -1,0 +1,28 @@
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    margin-left: 0;
+    transition: margin-left var(--transition-speed), width var(--transition-speed);
+    width: calc(100% - var(--sidebar-width));
+}
+
+.main-content.sidebar-collapsed {
+    margin-left: 0;
+    width: 100%;
+}
+
+/* Media Queries for Main Content */
+
+/* Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin-left: 0;
+    }
+}

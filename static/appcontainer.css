@@ -1,0 +1,163 @@
+/* Root Variables */
+:root {
+    --primary-color: #0078d4;
+    --secondary-color: #005a9e;
+    --text-color: #252525;
+    --bg-color: #f5f5f5;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --hover-color: #f0f0f0;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --radius: 8px;
+    --header-height: 60px;
+    --sidebar-width: 280px;
+    --sidebar-mobile-width: 85vw;
+    --transition-speed: 0.3s;
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
+    --grey-light: #f8f9fa;
+    --grey-mid-light: #e9ecef;
+    --grey-mid: #ced4da;
+    --grey-dark: #495057;
+    --user-bg: #e7f3ff;
+    --ai-bg: var(--grey-light);
+}
+
+/* Dark Theme */
+.dark-theme {
+    --primary-color: #4cc2ff;
+    --secondary-color: #2a9fd6;
+    --text-color: #f0f0f0;
+    --bg-color: #1e1e1e;
+    --card-bg: #2d2d2d;
+    --border-color: #444444;
+    --hover-color: #3a3a3a;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --grey-light: #343a40;
+    --grey-mid-light: #495057;
+    --grey-mid: #6c757d;
+    --grey-dark: #adb5bd;
+    --user-bg: #38495e;
+    --ai-bg: var(--grey-light);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    font-family: 'Segoe UI', 'San Francisco', 'Helvetica Neue', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* App Container */
+.app-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Welcome Screen */
+.welcome-screen {
+    position: absolute;
+    inset: 0;
+    background-color: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.welcome-screen.hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+}
+
+.welcome-card {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: clamp(1.5rem, 5vw, 3rem);
+    max-width: 600px;
+    width: 100%;
+    color: white;
+    text-align: center;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.welcome-title {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.welcome-message {
+    font-size: clamp(1rem, 3vw, 1.1rem);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.get-started-btn {
+    background-color: white;
+    color: var(--primary-color);
+    border: none;
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    appearance: none;
+}
+
+.get-started-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.get-started-btn:active {
+    transform: translateY(0);
+}
+
+/* Media Queries for Welcome Screen */
+
+/* Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+    /* No specific changes for app-container or welcome-screen */
+}
+
+/* Extra Small (max-width: 480px) */
+@media (max-width: 480px) {
+    .welcome-card {
+        padding: 1.5rem;
+    }
+
+    .welcome-title {
+        font-size: 1.8rem;
+    }
+
+    .welcome-message {
+        font-size: 0.95rem;
+    }
+}

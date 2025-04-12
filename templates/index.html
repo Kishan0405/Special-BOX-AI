@@ -6,8 +6,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Special BOX AI</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styleresponse.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='stylenew.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='response.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='appcontainer.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='chatcontainer.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='maincontent.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='sidebar.css') }}">
+  <style>
+    /* Status Indicators */
+    .status-container {
+      display: none;
+      /* Initially hidden */
+      align-items: center;
+      gap: 0.8rem;
+      margin: 1rem 0;
+    }
+
+    .status-container.active {
+      display: flex;
+      /* Show when active */
+    }
+
+    .spinner {
+      color: var(--primary-color);
+      animation: spin 1.5s linear infinite;
+    }
+
+    .status-text,
+    #upload-status {
+      font-size: 1rem;
+      color: var(--text-color);
+    }
+
+    #upload-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .uploading .spinner,
+    .uploading .status-text {
+      display: block;
+    }
+
+    .upload-success,
+    .upload-error {
+      display: flex;
+    }
+
+    .upload-success {
+      color: green;
+    }
+
+    .upload-error {
+      color: red;
+    }
+
+    .upload-success::before {
+      content: '\f00c';
+    }
+
+    .upload-error::before {
+      content: '\f00d';
+    }
+
+    .upload-success::before,
+    .upload-error::before {
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -96,8 +174,9 @@
             <i class="fas fa-sun" id="sun-icon"></i>
             <i class="fas fa-moon" id="moon-icon" style="display: none;"></i>
           </button>
-          <button class="theme-btn" id="old-ui-toggle" title="Switch to Old UI">
-            <i class="fas fa-undo"></i>
+
+          <button id="toggle-status-btn" class="status-toggle" title="Show/Hide Status">
+            <i class="fas fa-arrow-up"></i>
           </button>
         </div>
       </div>
@@ -131,10 +210,6 @@
           <div class="status-text" id="status"></div>
           <div id="upload-status"></div>
         </div>
-
-        <button id="toggle-status-btn" class="input-btn" title="Show/Hide Status">
-          <i class="fas fa-arrow-up"></i>
-        </button>
 
         <div class="input-container">
           <div class="input-wrapper" id="input-wrapper">
@@ -202,7 +277,6 @@
       const fileInput = document.getElementById('file-input');
       const triggerFileUpload = document.getElementById('trigger-file-upload');
       const uploadStatus = document.getElementById('upload-status');
-      const oldUIToggle = document.getElementById('old-ui-toggle');
 
       // STORAGE & CONVERSATION MANAGEMENT
       const Storage = {
@@ -529,6 +603,7 @@
           UI.renderConversationList();
         },
         newChat() {
+          deleteUploadedFile(); // Call delete function on new chat
           const newConv = Conversation.create();
           Storage.updateConversation(newConv);
           Storage.setActiveId(newConv.id);
@@ -696,12 +771,6 @@
         toggleDarkMode();
       }
 
-      if (oldUIToggle) {
-        oldUIToggle.addEventListener('click', () => {
-          window.location.href = '/main.html';
-        });
-      }
-
       if (newChatBtn) {
         newChatBtn.addEventListener('click', () => {
           deleteUploadedFile(); // Call delete function on new chat
@@ -759,6 +828,7 @@
         }
         uploadStatus.textContent = "Uploading...";
         uploadStatus.className = "uploading";
+        statusContainer.classList.add('active'); // Show the status container
         const formData = new FormData();
         formData.append('document', file);
         fetch('/upload', {
@@ -782,6 +852,11 @@
             uploadStatus.className = 'upload-error';
             uploadStatus.textContent = "An error occurred during upload.";
             deleteBtn.style.display = 'none'; // Hide delete button if upload fails
+          })
+          .finally(() => {
+            setTimeout(() => {
+              statusContainer.classList.remove('active'); // Hide the status container after a delay
+            }, 3000);
           });
       };
 
@@ -835,7 +910,7 @@
       if (toggleStatusBtn && statusContainer) {
         toggleStatusBtn.addEventListener('click', () => {
           if (statusContainer.style.display === 'none' || statusContainer.style.display === '') {
-            statusContainer.style.display = 'block';
+            statusContainer.style.display = 'flex';
             toggleStatusBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
           } else {
             statusContainer.style.display = 'none';
