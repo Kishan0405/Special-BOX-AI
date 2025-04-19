@@ -77,18 +77,18 @@ body {
     overflow: hidden;
 }
 
-/* Welcome Screen */
+/* Optimized Welcome Screen CSS */
 .welcome-screen {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    background-color: var(--card-bg);
+    background-color: rgba(245, 247, 250, 0.95);
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     z-index: 1000;
     padding: 1rem;
     transition: opacity 0.5s ease, transform 0.5s ease;
+    overflow-y: auto;
 }
 
 .welcome-screen.hidden {
@@ -98,15 +98,16 @@ body {
 }
 
 .welcome-card {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     padding: clamp(1.5rem, 5vw, 3rem);
-    max-width: 600px;
+    max-width: 650px;
     width: 100%;
     color: white;
     text-align: center;
     animation: fadeIn 0.8s ease;
+    margin: 2rem 0;
 }
 
 @keyframes fadeIn {
@@ -123,35 +124,123 @@ body {
 .welcome-title {
     font-size: clamp(1.8rem, 5vw, 2.5rem);
     margin-bottom: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: -0.5px;
 }
 
 .welcome-message {
     font-size: clamp(1rem, 3vw, 1.1rem);
     margin-bottom: 2rem;
     line-height: 1.6;
+    opacity: 0.95;
+}
+
+.welcome-content {
+    text-align: left;
+    margin: 2rem 0;
+}
+
+.welcome-content h2 {
+    font-size: clamp(1.3rem, 4vw, 1.7rem);
+    margin-bottom: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+}
+
+.features-list, .steps-list {
+    padding-left: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.features-list li, .steps-list li {
+    margin-bottom: 0.8rem;
+    line-height: 1.5;
+    position: relative;
+}
+
+.features-list li::marker {
+    content: "✦ ";
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.steps-list {
+    counter-reset: step-counter;
+    list-style-type: none;
+    padding-left: 2rem;
+}
+
+.steps-list li {
+    counter-increment: step-counter;
+    position: relative;
+}
+
+.steps-list li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: -2rem;
+    top: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.value-proposition {
+    font-size: 1.05rem;
+    font-style: italic;
+    opacity: 0.9;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-left: 3px solid rgba(255, 255, 255, 0.3);
 }
 
 .get-started-btn {
     background-color: white;
-    color: var(--primary-color);
+    color: #3a7bd5;
     border: none;
-    padding: 0.8rem 2rem;
-    font-size: 1rem;
+    padding: 0.9rem 2.5rem;
+    font-size: 1.1rem;
     font-weight: 600;
     border-radius: 30px;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s ease;
     appearance: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;
 }
 
 .get-started-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    background-color: #f8f9fa;
 }
 
 .get-started-btn:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .welcome-card {
+        padding: 1.5rem;
+    }
+    
+    .features-list, .steps-list {
+        padding-left: 1rem;
+    }
+    
+    .steps-list li::before {
+        left: -1.75rem;
+    }
+    
+    .value-proposition {
+        padding: 0.75rem;
+    }
 }
 
 /* Mobile Navigation Menu Button */
