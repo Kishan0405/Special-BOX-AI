@@ -107,6 +107,15 @@
           <button id="toggle-status-btn" class="status-toggle" title="Show/Hide Status">
             <i class="fas fa-arrow-up"></i>
           </button>
+
+          <button id="updates-btn" class="status-toggle" title="Check for Updates">
+            <i class="fa-solid fa-info"></i>
+          </button>
+          <script>
+            document.getElementById('updates-btn').addEventListener('click', () => {
+              window.location.href = 'main.html';
+            });
+          </script>
         </div>
       </div>
 
@@ -866,6 +875,23 @@
         });
         return preferences;
       }
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        displayMath: [['$$','$$'], ['\\[','\\]']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script>
+    document.getElementById('equation-input').addEventListener('input', function (e) {
+      const latex = e.target.value;
+      document.getElementById('preview').innerHTML = `\\(${latex}\\>`;
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub, "preview"]);
     });
   </script>
   <script>

@@ -12,3 +12,7 @@ python-docx
 python-pptx
 nltk
 gunicorn
+requests 
+beautifulsoup4 
+tenacity 
+playwright

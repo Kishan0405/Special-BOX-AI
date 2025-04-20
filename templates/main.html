@@ -2,514 +2,348 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Font Awesome CSS (using one version only) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='stylenav.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='styleresponse.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='stylefeaturecard.css') }}" />
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Special BOX AI - Updates</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* Basic styling for the status text */
-    #status {
-      font-size: 1.5rem;
-      /* Increased font size for better readability */
-      font-weight: bold;
-      margin: 10px 0;
-      height: 1.5em;
-      text-align: center;
-      /* Center align for better appearance */
+    :root {
+      /* Color Palette & Design Tokens */
+      --primary-color: #0078d4;
+      --secondary-color: #005a9e;
+      --text-color: #252525;
+      --bg-color: #f5f5f5;
+      --card-bg: #ffffff;
+      --border-color: #e0e0e0;
+      --hover-color: #f0f0f0;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --radius: 8px;
+      --header-height: 60px;
+      --sidebar-width: 280px;
+      --sidebar-mobile-width: 85vw;
+      --transition-speed: 0.3s;
+      --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
+      /* Grey Scale & Backgrounds */
+      --grey-light: #f8f9fa;
+      --grey-mid-light: #e9ecef;
+      --grey-mid: #ced4da;
+      --grey-dark: #495057;
+      --user-bg: #e7f3ff;
+      --ai-bg: var(--grey-light);
     }
 
+    .dark-theme {
+      --primary-color: #4cc2ff;
+      --secondary-color: #2a9fd6;
+      --text-color: #f0f0f0;
+      --bg-color: #1e1e1e;
+      --card-bg: #2d2d2d;
+      --border-color: #444444;
+      --hover-color: #3a3a3a;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      --grey-light: #343a40;
+      --grey-mid-light: #495057;
+      --grey-mid: #6c757d;
+      --grey-dark: #adb5bd;
+      --user-bg: #38495e;
+      --ai-bg: var(--grey-light);
+    }
 
-    /* Optional: style for the typing animation container */
-    .loading-container {
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background-color: var(--card-bg);
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .header-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: var(--radius);
+      transition: background-color var(--transition-speed);
+    }
+
+    .header-btn:hover {
+      background-color: var(--hover-color);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .updates-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .update-card {
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    }
+
+    .update-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .update-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .update-title {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+    }
+
+    .update-date {
+      color: var(--grey-mid);
+      font-size: 0.9rem;
+    }
+
+    .update-content {
+      margin-bottom: 15px;
+    }
+
+    .update-content p {
+      margin-bottom: 10px;
+    }
+
+    .update-content ul {
+      list-style-type: disc;
+      margin-left: 20px;
+      margin-bottom: 10px;
+    }
+
+    .update-content ul li {
+      margin-bottom: 5px;
+    }
+
+    .read-more {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: color var(--transition-speed);
+    }
+
+    .read-more:hover {
+      color: var(--secondary-color);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .theme-btn {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      /* Center the loading icon */
-      margin-top: 10px;
-      /* Space above the loading container */
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: background-color var(--transition-speed);
     }
 
-    /* Loading icon styling */
-    .loading-container i {
-      margin-right: 8px;
-      animation: spin 1.5s linear infinite;
-      /* Faster spin for a more dynamic feel */
-      font-size: 1.5rem;
-      /* Increased size for better visibility */
-      color: #007bff;
-      /* Primary color for the loading icon */
+    .theme-btn:hover {
+      background-color: var(--hover-color);
     }
 
-    /* Keyframes for custom spin animation */
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
+    .back-btn-container {
+      margin-bottom: 20px;
     }
 
-    /* Responsive adjustments */
+    .back-btn {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background-color var(--transition-speed);
+    }
+
+    .back-btn:hover {
+      background-color: var(--secondary-color);
+    }
+
     @media (max-width: 768px) {
-      #status {
-        font-size: 1.2rem;
-        /* Slightly smaller font on smaller screens */
+      .main-content {
+        padding: 15px;
       }
 
-      .ai-response {
-        padding: 10px;
-        /* Reduced padding for smaller screens */
+      .update-title {
+        font-size: 1.3rem;
       }
 
-      .loading-container i {
-        font-size: 1.2rem;
-        /* Smaller loading icon on mobile */
-      }
-    }
-
-    @media (max-width: 480px) {
-      #status {
-        font-size: 1rem;
-        /* Further reduce font size for very small screens */
-      }
-
-      .ai-response {
-        margin-top: 15px;
-        /* Adjust margin for smaller screens */
+      .header {
+        padding: 0 15px;
       }
     }
   </style>
 </head>
 
 <body>
-  <!-- Side Navigation Menu -->
-  <div class="main-content" id="mainContent">
-    <div class="feature-card" id="feature-card">
-      <h1 class="welcome-title">Discover Special BOX AI</h1>
-      <p class="welcome-message">
-        Unlock powerful AI capabilities to assist with your tasks and enhance your productivity.
-      </p>
-      <button class="get-started-btn" id="get-started-btn">Start Your Journey</button>
+  <header class="header">
+    <div class="header-controls">
+      <button class="header-btn" id="back-to-chat">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <h1>Updates</h1>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="back-btn-container">
+      <a href="index.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Chat
+      </a>
     </div>
 
-    <div class="side-nav" id="sideNav">
-      <div class="side-nav-items">
-        <!-- New Chat Button -->
-        <div class="side-nav-item" data-action="new-chat" id="new-chat-btn">
-          <i class="fas fa-plus"></i>
-          <a href="#"></a>
-        </div>
-
-        <label for="response-type">Response Type:</label>
-        <div class="select-wrapper">
-          <select id="response-type">
-            <option value="short">Short</option>
-            <option value="medium">Medium</option>
-            <option value="detailed">Detailed</option>
-            <option value="detailed with references">Detailed with References</option>
-            <option value="bullet points">Bullet Points Only</option>
-          </select>
-        </div>
-
-        <label for="tone">Tone:</label>
-        <div class="select-wrapper">
-          <select id="tone">
-            <option value="professional">Professional</option>
-            <option value="academic">Academic</option>
-            <option value="friendly">Friendly</option>
-            <option value="creative">Creative</option>
-          </select>
-        </div>
-
-        <label for="agent">Agent:</label>
-        <div class="select-wrapper">
-          <select id="agent">
-            <option value="default_agent">Generate text Agent</option>
-            <option value="summarize_agent">Summarize text Agent</option>
-            <option value="email_agent">Email Agent</option>
-            <option value="coding_agent">Coding Agent</option>
-            <option value="mathematics_agent">Mathematics Agent</option>
-          </select>
-        </div>
-      </div>
-
-      <label for="language">Language:</label>
-      <div class="select-wrapper">
-        <select id="language">
-          <option value="english_in">English (India)</option>
-          <option value="english_us">English (US)</option>
-          <option value="hindi_in">हिंदी (Hindi, India)</option>
-          <option value="telugu_in">తెలుగు (Telugu, India)</option>
-          <option value="tamil_in">தமிழ் (Tamil, India)</option>
-          <option value="kannada_in">ಕನ್ನಡ (Kannada, India)</option>
-        </select>
-      </div>
-
-      <!-- BEGIN: Chat History Panel -->
-      <div class="chat-history-panel" id="chat-history-panel">
-        <h3>Chat History</h3>
-        <ul id="chat-history-list"></ul>
-      </div>
-      <!-- END: Chat History Panel -->
+    <div class="updates-container" id="updates-container">
+      <!-- Updates will be dynamically added here -->
     </div>
-    <style>
-      /* Chat History Panel - CSS Variables */
-      :root {
-        /* Existing variables */
+  </main>
 
-        /* Chat History Panel Variables */
-        --chat-panel-border-color: #e0e0e0;
-        --chat-item-hover-bg: rgba(255, 255, 255, 0.1);
-        --chat-item-active-bg: rgba(255, 255, 255, 0.2);
-        --chat-item-active-border: #ff9800;
-        --chat-item-text-color: #ccc;
-        --chat-item-active-color: #fff;
-        --chat-title-edit-bg: #2e2e3f;
-        --chat-title-edit-border: #555;
-        --chat-delete-btn-color: #ff5252;
-        --chat-delete-btn-hover-color: #ff1a1a;
-        --chat-panel-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        --chat-panel-title-size: 1.1rem;
-        --chat-panel-spacing: 1em;
-        --scrollbar-width: 6px;
-        --scrollbar-thumb-color: var(--select-border, #555);
-        --scrollbar-track-color: transparent;
-      }
-
-      /* Chat History Panel Styles */
-      .chat-history-panel {
-        margin-top: var(--chat-panel-spacing);
-        padding-top: var(--chat-panel-spacing);
-        border-top: 1px solid var(--chat-panel-border-color);
-        transition: all var(--transition-speed, 0.3s) ease;
-        background: var(--side-nav-bg, #1e1e2d);
-        border-radius: 8px;
-        margin-bottom: var(--chat-panel-spacing);
-        box-shadow: var(--chat-panel-shadow);
-
-        /* Ensure the panel itself doesn't scroll */
-        display: flex;
-        flex-direction: column;
-        max-height: 30%;
-        overflow: hidden;
-      }
-
-      /* Mobile View Adjustments */
-      @media (max-width: 768px) {
-        .chat-history-panel {
-          margin-top: 0.5em;
-          padding-top: 0.5em;
-          max-height: 200px;
-          /* Fixed max height for mobile view */
-          border-radius: 6px;
-          /* Slightly smaller border radius */
-        }
-      }
-
-
-      .chat-history-panel h3 {
-        margin: 0 0 0.8em;
-        font-size: var(--chat-panel-title-size);
-        color: var(--chat-item-active-color);
-        padding: 0 var(--chat-panel-spacing);
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        /* Fix the header so it doesn't scroll */
-        position: sticky;
-        top: 0;
-        background: var(--side-nav-bg, #1e1e2d);
-        z-index: 1;
-        padding-bottom: 10px;
-      }
-
-      /* Scrollable List Container */
-      #chat-history-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-
-        /* Scrolling configuration */
-        overflow-y: auto;
-        overflow-x: hidden;
-        max-height: 10%;
-        /* Account for header */
-        flex-grow: 1;
-
-        /* Smooth scrolling */
-        scroll-behavior: smooth;
-
-        /* Firefox scrollbar styling */
-        scrollbar-width: thin;
-        scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
-
-        /* Performance optimization */
-        will-change: transform;
-      }
-
-      /* Webkit Scrollbar Styling (Chrome, Safari, Edge) */
-      #chat-history-list::-webkit-scrollbar {
-        width: var(--scrollbar-width);
-      }
-
-      #chat-history-list::-webkit-scrollbar-track {
-        background: var(--scrollbar-track-color);
-      }
-
-      #chat-history-list::-webkit-scrollbar-thumb {
-        background-color: var(--scrollbar-thumb-color);
-        border-radius: calc(var(--scrollbar-width) / 2);
-      }
-
-      /* List Items */
-      #chat-history-list li {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-        margin: 0.3em 0;
-        padding: 0.5em var(--chat-panel-spacing);
-        border-radius: 4px;
-        transition: all var(--transition-speed, 0.3s) ease;
-        color: var(--chat-item-text-color);
-        border-left: 3px solid transparent;
-      }
-
-      #chat-history-list li:hover {
-        background-color: var(--chat-item-hover-bg);
-      }
-
-      #chat-history-list li.active-conversation {
-        font-weight: 600;
-        background-color: var(--chat-item-active-bg);
-        border-left: 3px solid var(--chat-item-active-border);
-        color: var(--chat-item-active-color);
-      }
-
-      /* Conversation Title Styling */
-      .conversation-title {
-        flex: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        padding: 0.3em;
-        border-radius: 3px;
-        transition: all 0.2s ease;
-      }
-
-      .conversation-title:hover {
-        background-color: var(--chat-item-hover-bg);
-      }
-
-      .conversation-title[contenteditable='true'] {
-        background-color: var(--chat-title-edit-bg);
-        border: 1px solid var(--chat-title-edit-border);
-        padding: 0.3em 0.5em;
-        outline: none;
-        border-radius: 3px;
-        color: var(--chat-item-active-color);
-        box-shadow: 0 0 3px var(--select-focus-shadow, rgba(255, 255, 255, 0.2));
-      }
-
-      /* Delete Button Styling */
-      .delete-conversation-btn {
-        background: none;
-        color: var(--chat-delete-btn-color);
-        border: none;
-        cursor: pointer;
-        font-size: 0.8em;
-        margin-left: 8px;
-        padding: 3px;
-        opacity: 0.6;
-        border-radius: 3px;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .delete-conversation-btn:hover {
-        color: var(--chat-delete-btn-hover-color);
-        opacity: 1;
-        background-color: rgba(255, 255, 255, 0.1);
-      }
-
-      .delete-conversation-btn i {
-        font-size: 16px;
-      }
-
-      /* Empty State */
-      #chat-history-list:empty::before {
-        content: "No chat history yet";
-        display: block;
-        text-align: center;
-        padding: 1em;
-        color: var(--chat-item-text-color);
-        opacity: 0.7;
-        font-style: italic;
-      }
-
-      /* Mobile Responsiveness */
-      @media (max-width: 768px) {
-        .chat-history-panel {
-          margin-top: 0.5em;
-          padding-top: 0.5em;
-          max-height: 300px;
-          /* Smaller on mobile */
-        }
-
-        .chat-history-panel h3 {
-          font-size: calc(var(--chat-panel-title-size) * 0.9);
-          padding-bottom: 8px;
-        }
-
-        #chat-history-list {
-          max-height: calc(100% - 40px);
-        }
-
-        #chat-history-list li {
-          padding: 0.4em 0.6em;
-        }
-
-        .conversation-title {
-          font-size: 0.9em;
-        }
-
-        .delete-conversation-btn {
-          font-size: 0.7em;
-        }
-      }
-
-      /* Dark Mode Compatibility */
-      .dark-mode .chat-history-panel {
-        border-color: #444;
-      }
-
-      .dark-mode #chat-history-list li:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-      }
-
-      .dark-mode .conversation-title[contenteditable='true'] {
-        background-color: var(--dark-mode-select-bg, #333);
-        border-color: var(--dark-mode-select-border, #555);
-      }
-
-      /* Focus/Keyboard Navigation */
-      #chat-history-list li:focus-visible {
-        outline: 2px solid var(--chat-item-active-border);
-        outline-offset: -2px;
-      }
-    </style>
-
-
-
-
-    <div class="container" id="main-container">
-      <div id="chat-container">
-        <button id="theme-toggle">
-          <i class="fas fa-sun" id="sun-icon"></i>
-          <i class="fas fa-moon" id="moon-icon" style="display: none;"></i>
-        </button>
-
-        <button id="extra-toggle">
-          <i class="fas fa-chevron-right" id="right-icon"></i>
-          <i class="fas fa-chevron-left" id="left-icon" style="display: none;"></i>
-        </button>
-
-        <div id="chat-messages">
-          <div class="message ai-message"></div>
-        </div>
-
-        <!-- AI Chat Functionality -->
-        <div class="loading-container">
-          <!-- Added fa-spin class to ensure spinner animation -->
-          <i class="fas fa-spinner fa-spin" id="spinner" style="display:none;"></i>
-          <div id="status"></div>
-        </div>
-        <div id="response"></div>
-
-        <div class="input-area">
-          <!-- Changed input to textarea for multiline support; note the id is now "user-input" -->
-          <textarea id="user-input" placeholder="Ask Special BOX AI" autocomplete="on"></textarea>
-          <button id="send-btn" onclick="sendMessage()">
-            <i class="fa-regular fa-circle-up"></i>
-          </button>
-          <button id="reset-btn">
-            <i class="fas fa-sync"></i>
-          </button>
-        </div>
-        <h5 class="special-heading">Special BOX AI can make mistakes, Start with "greetings" to avoid errors</h5>
-      </div>
-    </div>
+  <div class="theme-toggle">
+    <button class="theme-btn" id="theme-toggle">
+      <i class="fas fa-sun" id="sun-icon"></i>
+      <i class="fas fa-moon" id="moon-icon" style="display: none;"></i>
+    </button>
   </div>
-  <style>
-    .special-heading {
-      font-size: 10px;
-      /* Larger text */
-      font-weight: 700;
-      /* Bold font */
-      /* A turquoise color */
-      margin-bottom: 0.5em;
-      /* Spacing below */
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      /* Specific font stack */
-      text-align: center;
-    }
-
-    @media (max-width: 768px) {
-      .special-heading {
-        font-size: 8px;
-        /* Adjust font size for smaller screens */
-        margin-bottom: 0.3em;
-        /* Adjust margin for smaller screens */
-      }
-    }
-  </style>
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const featureCard = document.getElementById('feature-card');
-      const mainContainer = document.getElementById('main-container');
-      const getStartedBtn = document.getElementById('get-started-btn');
-      const sideNav = document.getElementById('sideNav');
-      const extraToggle = document.getElementById('extra-toggle');
-      const rightIcon = document.getElementById('right-icon');
-      const leftIcon = document.getElementById('left-icon');
+    document.addEventListener('DOMContentLoaded', () => {
+      // DOM Elements
+      const updatesContainer = document.getElementById('updates-container');
+      const themeToggle = document.getElementById('theme-toggle');
+      const sunIcon = document.getElementById('sun-icon');
+      const moonIcon = document.getElementById('moon-icon');
+      const backToChatBtn = document.getElementById('back-to-chat');
 
-      // Get Started Button
-      getStartedBtn.addEventListener('click', function () {
-        featureCard.classList.add('hidden');
-        setTimeout(() => {
-          featureCard.style.display = 'none';
-          mainContainer.classList.add('visible');
-        }, 500);
-      });
+      // State
+      let isDarkMode = localStorage.getItem('theme') === 'dark';
 
-      // Extra Toggle Button
-      extraToggle.addEventListener('click', function () {
-        sideNav.classList.toggle('expanded'); // Toggle 'expanded' class
-
-        // Toggle Icons
-        if (sideNav.classList.contains('expanded')) {
-          rightIcon.style.display = 'none';
-          leftIcon.style.display = 'inline-block';
-        } else {
-          rightIcon.style.display = 'inline-block';
-          leftIcon.style.display = 'none';
+      // Sample Updates Data (Replace with actual data source if needed)
+      const updates = [
+        {
+          title: "Version 0.0 Release",
+          date: "08-12-2024",
+          content: `
+                        <p>Special BOX AI India Version 0.0 (V0.0) Release</p>
+                        <ul>
+                            <li>All new latest Updates are tagged in this page.</li>
+                        </ul>
+                    `,
+          readMore: "index.html"
         }
+      ];
+
+      // Functions
+      function renderUpdates() {
+        updatesContainer.innerHTML = '';
+        updates.forEach(update => {
+          const updateCard = document.createElement('div');
+          updateCard.className = 'update-card';
+          updateCard.innerHTML = `
+                        <div class="update-header">
+                            <h2 class="update-title">${update.title}</h2>
+                            <span class="update-date">${update.date}</span>
+                        </div>
+                        <div class="update-content">
+                            ${update.content}
+                        </div>
+                        ${update.readMore ? `<a href="${update.readMore}" class="read-more" target="_blank">Read More <i class="fas fa-external-link-alt"></i></a>` : ''}
+                    `;
+          updatesContainer.appendChild(updateCard);
+        });
+      }
+
+      function toggleDarkMode() {
+        document.body.classList.toggle('dark-theme');
+        isDarkMode = !isDarkMode;
+        if (isDarkMode) {
+          sunIcon.style.display = 'none';
+          moonIcon.style.display = 'inline-block';
+          localthemedisplay: none;
+          localStorage.setItem('theme', 'dark');
+        } else {
+          sunIcon.style.display = 'inline-block';
+          moonIcon.style.display = 'none';
+          localStorage.setItem('theme', 'light');
+        }
+      }
+
+      // Event Listeners
+      themeToggle.addEventListener('click', toggleDarkMode);
+
+      backToChatBtn.addEventListener('click', () => {
+        window.location.href = 'index.html';
       });
+
+      // Initialize
+      if (isDarkMode) {
+        document.body.classList.add('dark-theme');
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'inline-block';
+      }
+
+      renderUpdates();
     });
   </script>
-
-
 </body>
 
 </html>

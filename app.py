@@ -22,6 +22,11 @@ from typing import List, Dict, Optional, Any
 import io
 from bs4 import BeautifulSoup
 import requests
+import random
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+import validators
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+from sympy.parsing.sympy_parser import parse_expr
 
 # Imports for document extraction
 import PyPDF2
@@ -85,9 +90,203 @@ def get_current_india_datetime() -> str:
     now_india = datetime.now(india_tz)
     return now_india.strftime('%d-%m-%Y %H:%M:%S')
 
+# List of User-Agent strings for rotation
+USER_AGENTS = [
+    # Desktop
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+    # Mobile
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (Linux; Android 12; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    'Mozilla/5.0 (iPad; CPU OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
+]
+
+#########################################
+# Equation Conversion Function
+#########################################
+
+def convert_equation_to_readable(equation: str) -> Dict[str, str]:
+    """Convert a mathematical equation to a human-readable form and LaTeX.
+    
+    Args:
+        equation (str): Input equation, e.g., "0.3 x 10^-3 = k (0.05)^2"
+    
+    Returns:
+        Dict[str, str]: Dictionary with 'plain' (human-readable text) and 'latex' (LaTeX format)
+    """
+    try:
+        expr = parse_expr(equation.replace('x', '*'), transformations='all')
+        latex = latex(expr)
+        # Normalize spaces and multiplication symbols
+        equation = equation.replace('x', '*').replace('×', '*').strip()
+        
+        # Patterns for parsing
+        number_pattern = r'(\d*\.?\d+)'  # Matches decimals or integers (e.g., 0.3, 10)
+        sci_notation_pattern = r'(\d*\.?\d+)(?:e|E)(-?\d+)|(\d*\.?\d+)\s*\*\s*10\^\{?(-?\d+)\}?'  # Matches 10^-3
+        power_pattern = r'\(([\d\.]+)\)\^\{?(\d+)\}?'  # Matches (0.05)^2
+        variable_pattern = r'\b([a-zA-Z])\b'  # Matches single variables like k
+        operator_pattern = r'(\*|=)'  # Matches * or =
+        
+        # Replace scientific notation first
+        def replace_sci_notation(match):
+            base, exp = match.groups()
+            return f"{base} × 10^{{{exp}}}"
+        
+        latex_equation = re.sub(sci_notation_pattern, replace_sci_notation, equation)
+        
+        # Tokenize the equation
+        tokens = []
+        pos = 0
+        while pos < len(equation):
+            # Check for scientific notation
+            sci_match = re.match(sci_notation_pattern, equation[pos:])
+            if sci_match:
+                base, exp = sci_match.groups()
+                tokens.append(f"{base} * 10^{exp}")
+                pos += sci_match.end()
+                continue
+            # Check for power
+            power_match = re.match(power_pattern, equation[pos:])
+            if power_match:
+                base, exp = power_match.groups()
+                tokens.append(f"({base})^{exp}")
+                pos += power_match.end()
+                continue
+            # Check for number
+            num_match = re.match(number_pattern, equation[pos:])
+            if num_match:
+                tokens.append(num_match.group(0))
+                pos += num_match.end()
+                continue
+            # Check for variable
+            var_match = re.match(variable_pattern, equation[pos:])
+            if var_match:
+                tokens.append(var_match.group(0))
+                pos += var_match.end()
+                continue
+            # Check for operator
+            op_match = re.match(operator_pattern, equation[pos:])
+            if op_match:
+                tokens.append(op_match.group(0))
+                pos += op_match.end()
+                continue
+            # Skip whitespace or other characters
+            pos += 1
+        
+        # Generate plain text
+        plain_text = []
+        for token in tokens:
+            if token.startswith('(') and token.endswith(')'):
+                base, exp = re.match(r'\(([\d\.]+)\)\^(\d+)', token).groups()
+                plain_text.append(f"{base} to the power {exp}")
+            elif '*' in token and '10^' in token:
+                base, exp = token.split(' * 10^')
+                plain_text.append(f"{base} times 10 to the power {exp}")
+            elif token == '*':
+                plain_text.append('times')
+            elif token == '=':
+                plain_text.append('equals')
+            else:
+                plain_text.append(token)
+        
+        plain_text = ' '.join(plain_text)
+        
+        # Generate LaTeX
+        latex_equation = latex_equation.replace('*', r'\times').replace('=', r'=')
+        
+        return {
+            'plain': plain_text,
+            'latex': latex_equation
+        }
+    except Exception as e:
+        logger.error(f"Error converting equation '{equation}': {e}")
+        return {
+            'plain': f"Error: Unable to parse equation '{equation}'",
+            'latex': equation
+        }
+
 #########################################
 # Tool Integration Functions for Real-Time Data
 #########################################
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=2, max=10),
+    retry=retry_if_exception_type((requests.exceptions.ConnectionError, requests.exceptions.Timeout)),
+    reraise=True
+)
+def extract_website_content(url: str, use_playwright: bool = False) -> str:
+    """Extract main text content from a website URL using BeautifulSoup or Playwright for JS-rendered pages."""
+    # Validate URL
+    if not validators.url(url):
+        logger.error(f"Invalid URL: {url}")
+        return "Error: Invalid URL format."
+
+    try:
+        if use_playwright:
+            # Use Playwright for JavaScript-rendered content
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                page = browser.new_page()
+                page.set_extra_http_headers({
+                    'User-Agent': random.choice(USER_AGENTS),
+                    'Accept-Language': 'en-US,en;q=0.9',
+                })
+                page.goto(url, timeout=30000)  # 30 seconds timeout
+                page.wait_for_load_state('networkidle', timeout=30000)
+                content = page.content()
+                browser.close()
+                
+                soup = BeautifulSoup(content, 'html.parser')
+        else:
+            # Use requests for static content
+            headers = {
+                'User-Agent': random.choice(USER_AGENTS),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+            }
+            response = requests.get(url, headers=headers, timeout=15, verify=True)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Extract content from multiple tags
+        content_tags = soup.find_all(['p', 'div', 'article', 'span'], class_=lambda x: x not in ['nav', 'footer', 'sidebar', 'menu'])
+        content = ' '.join([tag.get_text(strip=True) for tag in content_tags if tag.get_text(strip=True)])
+        
+        # Clean up excessive whitespace
+        content = re.sub(r'\s+', ' ', content).strip()
+        
+        # Limit to 5000 characters
+        return content[:5000] or "No meaningful content extracted."
+
+    except requests.exceptions.HTTPError as http_err:
+        status_code = http_err.response.status_code
+        if status_code == 403:
+            logger.warning(f"Access denied (403) for {url}. Retrying with Playwright...")
+            return extract_website_content(url, use_playwright=True)
+        elif status_code == 429:
+            logger.warning(f"Rate limited (429) for {url}")
+            return "Error: Rate limited by the website. Please try again later."
+        logger.error(f"HTTP error for {url}: {http_err}")
+        return f"Error: HTTP {status_code} - {str(http_err)}"
+    except requests.exceptions.SSLError as ssl_err:
+        logger.error(f"SSL error for {url}: {ssl_err}")
+        return "Error: SSL verification failed. The website may have an invalid certificate."
+    except requests.exceptions.ConnectionError as conn_err:
+        logger.error(f"Connection error for {url}: {conn_err}")
+        return "Error: Failed to connect to the website. Please check the URL or try again later."
+    except requests.exceptions.Timeout:
+        logger.error(f"Timeout for {url}")
+        return "Error: Request timed out. The website may be slow or unreachable."
+    except PlaywrightTimeoutError:
+        logger.error(f"Playwright timeout for {url}")
+        return "Error: Failed to load dynamic content within the timeout period."
+    except Exception as e:
+        logger.error(f"Unexpected error for {url}: {e}")
+        return f"Error: Unexpected issue occurred while accessing the website - {str(e)}"
 
 def get_weather_data(location: str) -> str:
     weather_api_key = os.getenv('WEATHER_API_KEY')
@@ -141,28 +340,6 @@ def get_news_data(topic: str) -> str:
         logger.error(f"Exception in get_news_data: {e}")
         return f"Exception occurred: {str(e)}"
 
-def extract_website_content(url: str) -> str:
-    """Extract main text content from a website URL using BeautifulSoup."""
-    try:
-        headers = {
-            'User -Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        
-        soup = BeautifulSoup(response.text, 'html.parser')
-        # Extract text from specific tags
-        paragraphs = soup.find_all('p')
-        content = ' '.join([para.get_text() for para in paragraphs])
-        
-        return content[:5000]  # Limit to 5000 characters
-    except requests.exceptions.RequestException as req_err:
-        logger.error(f"Website extraction error: {req_err}")
-        return f"Error accessing website: {req_err}"
-    except Exception as e:
-        logger.error(f"Exception in extract_website_content: {e}")
-        return f"Exception occurred: {str(e)}"
-
 def integrate_tool_data(user_message: str) -> str:
     additional_info = []
     tasks = [
@@ -210,6 +387,8 @@ def integrate_tool_data(user_message: str) -> str:
                 param = match.group(1).strip() if match and match.group(1) else task["default"]
                 if param:  # Only proceed if we have a parameter (URL or location)
                     result = task["function"](param)
+                    if result.startswith("Error:"):
+                        logger.warning(f"Task {task['label']} failed for {param}: {result}")
                     additional_info.append(f"{task['label']} {param}: {result}")
 
     if not recognized_task:
@@ -380,7 +559,7 @@ def highlight_code_in_html(html_text: str) -> str:
 
 def format_response(ai_text: str, user_query: str, response_type: str = 'short') -> str:
     try:
-        html_content = markdown2.markdown(ai_text, extras=["fenced-code-blocks", "tables", "header-ids", "metadata", "spoiler"])
+        html_content = markdown2.markdown(ai_text, extras=["fenced-code-blocks", "tables", "header-ids", "metadata", "spoiler", "mathjax"])
         html_content = highlight_code_in_html(html_content)
         references = generate_references(user_query, response_type)
         references_html = ""
@@ -432,7 +611,27 @@ def customize_prompt_for_tone_and_type(user_message: str, response_type: str, to
         "tamil_in": "Respond in Tamil with culturally appropriate language. " + formatting_guideline,
         "kannada_in": "Respond in Kannada ensuring clarity and cultural relevance. " + formatting_guideline,
     }.get(language, "Respond in English. " + formatting_guideline)
-    if agent == 'coding_agent':
+    
+    # Detect and process mathematical equations for mathematics_agent
+    if agent == 'mathematics_agent':
+        # Simple heuristic to detect equations (numbers, operators, ^, =)
+        if re.search(r'[\d\.\*\^\+=]', user_message):
+            readable_equation = convert_equation_to_readable(user_message)
+            enhanced_message = (
+                f"Equation: {user_message}\n"
+                f"Readable form: {readable_equation['plain']}\n"
+                f"LaTeX: $${readable_equation['latex']}$$\n"
+                f"Provide a clear, step-by-step mathematical explanation and solution for the equation."
+            )
+        else:
+            enhanced_message = user_message
+        
+        enhanced_prompt = (
+            f"{context_prefix} {language_instructions} "
+            "Provide a clear, step-by-step mathematical explanation and solution for the problem below. "
+            f"Problem: {enhanced_message}"
+        )
+    elif agent == 'coding_agent':
         enhanced_prompt = (
             f"{context_prefix} {language_instructions} "
             "You are a coding expert. Provide a clean, efficient, and well-commented code solution "
@@ -450,12 +649,6 @@ def customize_prompt_for_tone_and_type(user_message: str, response_type: str, to
             f"{context_prefix} {language_instructions} "
             "Draft a professional email based on the details provided. "
             f"Details: {user_message}"
-        )
-    elif agent == 'mathematics_agent':
-        enhanced_prompt = (
-            f"{context_prefix} {language_instructions} "
-            "Provide a clear, step-by-step mathematical explanation and solution for the problem below. "
-            f"Problem: {user_message}"
         )
     else:
         type_instructions = {
@@ -750,17 +943,20 @@ def news_endpoint():
 def extract_website_endpoint():
     url = request.args.get('url')
     if not url:
-        return jsonify({"error": "URL parameter is required"}), 400
+        return jsonify({"success": False, "error": "URL parameter is required"}), 400
     
     try:
         content = extract_website_content(url)
         return jsonify({
+            'success': True,
             'url': url,
             'content': content,
             'message': f"Extracted content from {url}"
         })
     except Exception as e:
+        logger.error(f"Failed to extract content from {url}: {e}")
         return jsonify({
+            'success': False,
             'error': str(e),
             'message': f"Failed to extract content from {url}"
         }), 500
