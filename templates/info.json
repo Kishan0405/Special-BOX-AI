@@ -1,0 +1,20 @@
+[
+    {
+        "title": "Version 2.1.0 Release",
+        "date": "2025-04-15",
+        "content": "<p>We're excited to announce the release of Special BOX AI v2.1.0 with major improvements!</p><ul><li>Enhanced natural language understanding</li><li>New voice interaction mode (iOS only)</li><li>Improved file upload processing</li><li>Bug fixes and performance optimizations</li></ul>",
+        "readMore": "https://x.ai/grok"
+    },
+    {
+        "title": "DeepSearch Mode Introduction",
+        "date": "2025-03-20",
+        "content": "<p>Introducing DeepSearch mode for more comprehensive responses.</p><ul><li>Iterative web search capabilities</li><li>Enhanced reference inclusion</li><li>Available via DeepSearch button in UI</li></ul>",
+        "readMore": "https://x.ai/grok"
+    },
+    {
+        "title": "SuperGrok Subscription",
+        "date": "2025-02-10",
+        "content": "<p>SuperGrok subscription plan is now available!</p><ul><li>Higher usage quotas</li><li>Priority support</li><li>Exclusive features coming soon</li></ul>",
+        "readMore": "https://x.ai/grok"
+    }
+]

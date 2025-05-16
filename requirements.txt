@@ -17,4 +17,3 @@ beautifulsoup4
 tenacity 
 playwright
 validators
-sympy

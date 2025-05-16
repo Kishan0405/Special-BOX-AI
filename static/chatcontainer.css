@@ -342,7 +342,6 @@
 /* Media Queries */
 @media (max-width: 768px) {
     .chat-container {
-        height: 100%;
         padding: 0.5rem;
     }
 
@@ -400,7 +399,6 @@
 @media (max-width: 480px) {
     .chat-container {
         padding: 0.4rem;
-        height: 100%;
     }
 
     .messages-container {

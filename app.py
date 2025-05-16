@@ -79,7 +79,7 @@ safety_settings: List[Dict[str, str]] = [
 
 # Initialize Gemini model
 model = genai.GenerativeModel(
-    "gemini-2.0-flash",
+    "gemini-2.5-flash-preview-04-17",
     generation_config=generation_config,
     safety_settings=safety_settings
 )
